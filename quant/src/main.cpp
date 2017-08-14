@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <zookeeper/zookeeper_log.h>
 #include "election.h"
+#include "stock_info.h"
 
 
 using namespace std;
@@ -119,7 +120,7 @@ std::string eqvalue2string(const EQVARIENT* pEQVarient)
     {
         //以下为了输出便于观察，做了字符宽度限定处理，实际可参考需求处理
     case eVT_null:
-        sprintf(z,"%s", "        --");
+        sprintf(z,"%s", "--");
         s = z;
         break;
     case eVT_char:
@@ -131,27 +132,27 @@ std::string eqvalue2string(const EQVARIENT* pEQVarient)
         s = z;
         break;
     case eVT_int:
-        sprintf(z,"%10d", pEQVarient->unionValues.intValue);
+        sprintf(z,"%d", pEQVarient->unionValues.intValue);
         s = z;
         break;
     case eVT_uInt:
-        sprintf(z,"%10u", pEQVarient->unionValues.uIntValue);
+        sprintf(z,"%u", pEQVarient->unionValues.uIntValue);
         s = z;
         break;
     case eVT_int64: 
-        sprintf(z,"%10lld", pEQVarient->unionValues.int64Value);
+        sprintf(z,"%lld", pEQVarient->unionValues.int64Value);
         s = z;
         break;
     case eVT_uInt64: 
-        sprintf(z,"%10llu", pEQVarient->unionValues.uInt64Value);
+        sprintf(z,"%llu", pEQVarient->unionValues.uInt64Value);
         s = z;
         break;
     case eVT_float:  
-        sprintf(z,"%10.3f", pEQVarient->unionValues.floatValue);
+        sprintf(z,"%.3f", pEQVarient->unionValues.floatValue);
         s = z;
         break;
     case eVT_double: 
-        sprintf(z,"%14.3lf", pEQVarient->unionValues.doubleValue);
+        sprintf(z,"%.3lf", pEQVarient->unionValues.doubleValue);
         s = z;
         break;
     case eVT_asciiString:
@@ -163,11 +164,11 @@ std::string eqvalue2string(const EQVARIENT* pEQVarient)
         s = z;
         break;
     case eVT_short:     
-        sprintf(z,"%10d", pEQVarient->unionValues.shortValue);
+        sprintf(z,"%d", pEQVarient->unionValues.shortValue);
         s = z;
         break;
     case eVT_ushort:     
-        sprintf(z,"%10u", pEQVarient->unionValues.uShortValue);
+        sprintf(z,"%u", pEQVarient->unionValues.uShortValue);
         s = z;
         break;
 
@@ -285,6 +286,9 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
 
     printf("****************************************\n");
     printf("[%02d:%02d:%02d]Received [%d] callback: msgType=%d, err=%d, requestID=%d, serialID=%d.\n", t->tm_hour, t->tm_min, t->tm_sec, times++, pMsg->msgType, pMsg->err, pMsg->requestID, pMsg->serialID);
+    if (pMsg->err == 10002004) {
+      exit(1);
+    }
 
     if(!pMsg->pEQData)
     {
@@ -294,18 +298,19 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
 
     EQDATA *pEQData = pMsg->pEQData;
     string slinehead(""), sline("");
-    std::list<std::string> market_info;
+    std::list<stock_info::StockInfo> market_info;
     if(pEQData->dateArray.nSize == 1)
     {
         slinehead = pEQData->dateArray.pChArray[0].pChar;
         slinehead += " ";
         for(int i=0;i<pEQData->codeArray.nSize;i++)
         {
-            std::string info;
-            info += string(pEQData->codeArray.pChArray[i].pChar);
+            // std::string info;
+            stock_info::StockInfo  info; 
+            info.code =  string(pEQData->codeArray.pChArray[i].pChar);
             sline += string(pEQData->codeArray.pChArray[i].pChar);
             sline += " ";
-            info += " ";
+            //info += " ";
 
             for(int j=0;j<pEQData->indicatorArray.nSize;j++)
             {
@@ -325,8 +330,8 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
                 {
                     sline += eqvalue2string(pEQVarient);
                     sline += " ";
-                    info += eqvalue2string(pEQVarient);
-                    info += " ";
+                    info.indicators[j] =  eqvalue2string(pEQVarient);
+                    // info += " ";
                     
                 }
             }
@@ -336,7 +341,7 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
        //  printf("%s",sline.c_str());
     }
     else
-    {
+    {   printf("error\n");
         for(int k=0;k<pEQData->dateArray.nSize;k++)
         {
             slinehead = pEQData->dateArray.pChArray[k].pChar;
@@ -372,7 +377,7 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
                     }
                 }
                 sline += "\n";
-                market_info.push_back(info);
+                //market_info.push_back(info);
             }
 
             sline += "\n";
@@ -448,16 +453,22 @@ static std::list<std::string> get_group_codes(std::list<std::string> total);
 static bool UpdateMarketCodes(); 
 static std::string GetIndicators(); 
 void RegisterCsq(const std::list<std::string> &group_codes); 
+void GetCsqShot(const std::list<std::string> &group_codes); 
+bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_data); 
 /*
  * 
  */
 
 int main(int argc, char** argv) {
     int rc = 0;
+    if ((rc = user_init(argc, argv)) != 0) {
+      printf("user_init error %d\n", rc);
+      return -1;
+    }
 #if 1
     ElectionControl election;
-    const char *server = "192.168.1.85:2181, 192.168.1.80:2181, 192.168.1.81:2182, 192.168.1.82:2181";
-    if (election.Init(server, 30000) == false) {
+    const char *server = "192.168.1.106:2181";
+    if (election.Init(server, 500) == false) {
       printf("Init election failed!\n");
       return -1;
     }
@@ -466,10 +477,6 @@ int main(int argc, char** argv) {
       sleep(10);
     }
     
-    if ((rc = user_init(argc, argv)) != 0) {
-      printf("user_init error %d\n", rc);
-      return -1;
-    }
 #endif
     // daemon(0, 0);
     const char* szDllPathx64 = "../bin/libEMQuantAPIx64.so";
@@ -806,6 +813,7 @@ int main(int argc, char** argv) {
 }
 
 std::list<std::string>  GetAcodes() {
+  int max_codes = 300;
   EQDATA* Acodes = NULL;
   time_t now = time(NULL);
   struct tm current;
@@ -817,13 +825,33 @@ std::list<std::string>  GetAcodes() {
     EQDATA *pData = Acodes;
     for(int i=0;i<pData->codeArray.nSize;i++) {
       for(int k=0;k<pData->dateArray.nSize;k++) {
-        stock_codes.insert(pData->codeArray.pChArray[i].pChar);
+        if (stock_codes.size() < max_codes) {
+          stock_codes.insert(pData->codeArray.pChArray[i].pChar);
+        }
+          
       }
     }
     emreleasedata(Acodes);
   }
   std::list<std::string> tmp(stock_codes.begin(), stock_codes.end());
   return tmp;
+}
+
+void GetCsqShot(const std::list<std::string> &group_codes) {
+    std::string indicators = GetIndicators();
+    auto it = group_codes.begin();
+    while (it != group_codes.end()) {
+      std::string group_code = *it;
+      EQDATA* pCtrData = NULL;
+      emcsqsnapshot(group_code.c_str(), indicators.c_str(), "", pCtrData);
+      if (pCtrData) {
+        std::list<stock_info::StockInfo> market_info;
+        get_market_data(pCtrData, &market_info);
+        emreleasedata(pCtrData);
+        user_recv(market_info);
+      }
+      it++;
+    }
 }
 
 void RegisterCsq(const std::list<std::string> &group_codes) {
@@ -843,7 +871,6 @@ std::string GetIndicators() {
                                 Low,\
                                 Open,\
                                 PRECLOSE,\
-                                AMOUNT,\
                                 Roundlot,\
                                 PctChange,\
                                 Volume,\
@@ -851,11 +878,7 @@ std::string GetIndicators() {
                                 VolumeRatio,\
                                 CommissionDiff";
     char deal_csq [1024];
-    const char *buy_price = "BuyPrice";
-    const char *sell_price = "SellPrice";
-    const char *buy_volume = "BuyVolume";
-    const char *sell_volume = "SellVolume";
-    const char *deals[] = {"BuyPrice", "SellPrice", "BuyVolume", "SellVolume"};
+    const char *deals[] = {"BuyPrice", "BuyVolume", "SellPrice", "SellVolume"};
     std::string indicators(indicatorCSQ);
     for (int j = 0; j < 4; j++) {
       char tmp[16];
@@ -876,6 +899,7 @@ bool UpdateMarketCodes() {
   }
   emcsqcancel(0);
   std::list<std::string> group_codes = get_group_codes(codes);
+  GetCsqShot(group_codes);
   RegisterCsq(group_codes); 
   return true;
 }
@@ -901,5 +925,54 @@ std::list<std::string> get_group_codes(std::list<std::string> total) {
     result.push_back(group_codes);
   }
   return result;
+}
+
+bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_data) {
+    EQDATA *pEQData = pData;
+    if (!pEQData)
+      return false;
+    string slinehead(""), sline("");
+    std::list<stock_info::StockInfo> market_info;
+    if(pEQData->dateArray.nSize == 1)
+    {
+        slinehead = pEQData->dateArray.pChArray[0].pChar;
+        slinehead += " ";
+        for(int i=0;i<pEQData->codeArray.nSize;i++)
+        {
+            // std::string info;
+            stock_info::StockInfo  info; 
+            info.code =  string(pEQData->codeArray.pChArray[i].pChar);
+            sline += string(pEQData->codeArray.pChArray[i].pChar);
+            sline += " ";
+            //info += " ";
+
+            for(int j=0;j<pEQData->indicatorArray.nSize;j++)
+            {
+                if(i == 0)
+                {
+                    slinehead += string(pEQData->indicatorArray.pChArray[j].pChar);
+                    slinehead += " ";
+
+                    if(j == pEQData->indicatorArray.nSize-1)
+                    {
+                        printf("%s\n",slinehead.c_str());
+                    }
+                }
+
+                EQVARIENT* pEQVarient = (*pEQData)(i,j,0);
+                if(pEQVarient)
+                {
+                    sline += eqvalue2string(pEQVarient);
+                    sline += " ";
+                    info.indicators[j] =  eqvalue2string(pEQVarient);
+                    // info += " ";
+                    
+                }
+            }
+            sline += "\n";
+            market_info.push_back(info);
+        }
+    }
+  return true;
 }
 
