@@ -1,14 +1,14 @@
-/************************************************************************
-*                                                                       *
-*   EmQuantAPI.h    version  1.0.3.0                                    *
-*                                                                       *
-*   Copyright (c) EastMoney Corp. All rights reserved.                  *
-*                                                                       *
-************************************************************************/
+/**************************************************************************************************
+*   EmQuantAPI.h    version  2.0.0.0                                                              *                                                                      *
+*   Copyright(c)2016-2017,  EastMoney Information  Co,. Ltd. All Rights Reserved.                 *
+*   Eastmoney API must not be used without authorzation, unauthorized user shall be held liable.  *                                                                  *
+***************************************************************************************************/
 #ifndef _EMQUANTAPI_H_
 #define _EMQUANTAPI_H_ 
 
 #include <stdint.h>
+
+#define EMQUNANTAPIVER 2001
 
 #ifdef WIN32
 #ifdef EMQUANTAPI_EXPORTS
@@ -46,7 +46,7 @@ typedef void* LPVOID;
 
 
 #pragma region 账户相关错误 
-//用户未登陆
+//用户未登录
 #define EQERR_NO_LOGIN                (EQERR_BASE_ACCOUT + 1)
 //用户名或密码错误
 #define EQERR_USERNAMEORPASSWORD_ERR  (EQERR_BASE_ACCOUT + 2)
@@ -62,14 +62,30 @@ typedef void* LPVOID;
 #define EQERR_NO_LV2_ACCESS           (EQERR_BASE_ACCOUT + 7)
 //用户API_LV2权限过期
 #define EQERR_LV2_ACCESS_EXPIRE       (EQERR_BASE_ACCOUT + 8)
-//账号登陆数达到上限
+//账号登录数达到上限
 #define EQERR_LOGIN_COUNT_LIMIT       (EQERR_BASE_ACCOUT + 9)
-//用户登陆失败
+//用户登录失败
 #define EQERR_LOGIN_FAIL              (EQERR_BASE_ACCOUT + 10)
-//用户登陆掉线
+//用户登录掉线
 #define EQERR_LOGIN_DISCONNECT        (EQERR_BASE_ACCOUT + 11)
 //用户权限不足
-#define EQERR_ACCESS_INSUFFICIENCE     (EQERR_BASE_ACCOUT + 12)
+#define EQERR_ACCESS_INSUFFICIENCE    (EQERR_BASE_ACCOUT + 12)
+//用户正在登录
+#define EQERR_IS_LOGIN                (EQERR_BASE_ACCOUT + 13)
+//需要登录激活
+#define EQERR_NEED_ACTIVATE           (EQERR_BASE_ACCOUT + 14)
+//登录服务异常
+#define EQERR_LOGIN_SERVICE_ERR       (EQERR_BASE_ACCOUT + 15)
+//正在人工激活
+#define EQERR_IS_MANUAL_ACTIVATE      (EQERR_BASE_ACCOUT + 16)
+//无需人工激活
+#define EQERR_NOTNEED_MANUAL_ACTIVATE (EQERR_BASE_ACCOUT + 17)
+//人工激活失败
+#define EQERR_MANUAL_ACTIVATE_FAIL    (EQERR_BASE_ACCOUT + 18)
+//靠靠靠靠靠靠
+#define EQERR_DIFFRENT_DEVICE         (EQERR_BASE_ACCOUT + 19)
+////userInfo靠靠靠靠
+#define EQERR_USERINFO_EXPIRED        (EQERR_BASE_ACCOUT + 20)
 
 #pragma  endregion    
 
@@ -166,7 +182,7 @@ typedef void* LPVOID;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//语言类型枚举
+//错误信息语言类型枚举
 typedef enum
 {
     eLang_ch,
@@ -193,7 +209,7 @@ typedef enum
     eVT_unicodeString
 } EQVarType;
 
-// 返回Events结构类型定义
+// 返回Events结构类型枚举
 typedef enum 
 {
     eMT_err,                             // 出错信息
@@ -202,7 +218,18 @@ typedef enum
     eMT_others,                          // 其他信息
 } EQMsgType;
 
+//网络代理方式枚举
+typedef enum 
+{
+	ePT_NONE,                            // 不使用代理  
+	ePT_HTTP,						     // HTTP代理
+	ePT_HTTPS,						     // HTTPS代理
+	ePT_SOCK4,						     // SOCK4代理
+	ePT_SOCK5                            // SOCK5代理
+} ProxyType;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //char数组封装结构体
 typedef struct _tagEQCHAR
 {
@@ -287,14 +314,6 @@ typedef struct _tagEQDATA
 
 } EQDATA, *PEQDATA;
 
-// 登录信息
-#define MAXSTRING 255
-typedef struct _tagEQLOGININFO
-{
-    char userName[MAXSTRING];                        //登录用户名
-    char password[MAXSTRING];                        //登录密码
-} EQLOGININFO;
-
 //EQMSG数据结构体(异步返回回调时使用)
 typedef struct _tagEQMSG
 {
@@ -305,7 +324,6 @@ typedef struct _tagEQMSG
     EQID serialID;						             //流水号
     EQDATA* pEQData;      		                     //包含的数据
 } EQMSG, *PEQMSG;
-
 
 //报表输出结构体
 typedef struct _tagEQCtrData
@@ -350,6 +368,17 @@ typedef struct _tagEQCtrData
 
 } EQCTRDATA;
 
+#pragma pack(push)
+#pragma pack(1)
+// 登录信息
+#define MAXSTRING 255
+typedef struct _tagEQLOGININFO
+{
+	char userName[MAXSTRING];                        //登录用户名
+	char password[MAXSTRING];                        //登录密码
+} EQLOGININFO;
+#pragma pack(pop)
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //日志回调函数
@@ -358,17 +387,31 @@ typedef int (*logcallback)(const char* log);
 //请求回调函数(异步请求时使用)
 typedef int (*datacallback) (const EQMSG* pMsg, LPVOID lpUserParam);
 
+//设置主回调函数(一定要设置一个主回调函数，否则收不到账号掉线通知)
+EMQUANTAPI EQErr setcallback(datacallback pfnCallback);
+
 //用户可以自定义ServerList.json文件的存放路径
 EMQUANTAPI void setserverlistdir(const char* dir);
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//初始化和登陆(开始时调用)  options：附加参数 "TestLatency=1"
-EMQUANTAPI EQErr start(EQLOGININFO* pLoginInfo, const char* options, logcallback pfnCallback);
-//退出(结束时调用)
-EMQUANTAPI EQErr stop();
-//设置主回调函数，在start后调用
-EMQUANTAPI EQErr setcallback(datacallback pfnCallback);
+
 //获取错误码文本说明
 EMQUANTAPI const char* geterrstring(EQErr errcode, EQLang lang=eLang_en);
+
+//设置网络代理 注：如需使用代理，需要在调用所有接口之前设置
+EMQUANTAPI EQErr setproxy(ProxyType type, const char* proxyip, unsigned short proxyport, bool verify, const char* proxyuser, const char* proxypwd);
+
+/**人工激活 
+*  pLoginInfo：账户名密码结构体指针（必传项） options: 可传 "email=who@what.com"  pfnCallback日志回调函数
+*  注：人工激活适用于无界面运行环境（如远程linux）或无法运行LoginActivator程序的情况，
+*      激活成功后将获得的激活文件"userInfo"放到"ServerList.json"同级目录，再调用start登录*/  
+EMQUANTAPI EQErr manualactivate(EQLOGININFO* pLoginInfo, const char* options, logcallback pfnCallback);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//初始化和登录(开始时或掉线后调用)  pLoginInfo：保留参数,无需传(2.0.0.0版本之后改为令牌自动登陆)  options：附加参数  pfnCallback日志回调函数
+EMQUANTAPI EQErr start(EQLOGININFO* pLoginInfo, const char* options, logcallback pfnCallback);
+//退出(结束退出时调用，只需调用一次)
+EMQUANTAPI EQErr stop();
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //参数说明:
 //    codes: 东财代码  多个代码间用半角逗号隔开，支持大小写。如 "300059.SZ,000002.SZ,000003.SZ,000004.SZ"
@@ -377,6 +420,7 @@ EMQUANTAPI const char* geterrstring(EQErr errcode, EQLang lang=eLang_en);
 //    options: 附加参数  多个参数以半角逗号隔开，"Period=1,Market=CNSESH,Order=1,Adjustflag=1,Curtype=1,Pricetype=1,Type=1"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //指标服务数据查询(同步请求)
 EMQUANTAPI EQErr csd(const char* codes, const char* indicators, const char* startDate, const char* endDate, const char* options, EQDATA*& pEQData);
 //截面数据查询(同步请求)
@@ -397,11 +441,21 @@ EMQUANTAPI EQErr csc(const char* code, const char* indicators, const char* start
 EMQUANTAPI EQErr csqsnapshot(const char* codes, const char* indicators, const char* options, EQDATA*& pEQData);
 //获取专题报表(同步请求)
 EMQUANTAPI EQErr ctr(const char* ctrName, const char* indicators, const char* options, EQCTRDATA*& pEQCtrData);
+
+//条件选股(同步请求)
+//cps参数说明：
+//cpsCodes:      证券代码范围,必传,支持两种模式 1.板块代码 以 B_ 开头，如 "B_001004"; 2. 东财代码，多个代码间用半角逗号隔开，如"000001.SZ,000002.SZ,600000.SH"
+//cpsIndicators: 表达式参数,表达式之前用英文分号隔开,内部各参数用半角逗号隔开 如   s1,open,2016/12/13,1;s2,close,2017-02-25,1;s3,listdate
+//cpsConditions: 条件表达式
+//cpsOptions:    其他附加条件,如排序,取前N条选股结果等
+//pEQData:       选股结果
+EMQUANTAPI EQErr cps(const char* cpsCodes, const char* cpsIndicators, const char* cpsConditions, const char* cpsOptions, EQDATA*& pEQData);
+
 //仅供静态数据同步接口返回数据指针释放内存
 EMQUANTAPI EQErr releasedata(void* pEQData);
 
-
-//以下为异步函数
+//↑↑↑↑↑↑↑以上为同步函数↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+//↓↓↓↓↓↓↓以下为异步函数↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 //返回： EQID  流水号
 //pfnCallback：不同的接口可以设定不同的回调，传NULL则使用默认的主回调函数
 //lpUserParam: 用户参数,回调时原样返回

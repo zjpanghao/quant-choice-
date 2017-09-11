@@ -53,24 +53,24 @@
          "URL" : ""
       },
       {
-         "Host" : "121.52.237.244",
-         "Latency" : 4172,
-         "Name" : "HQBJFW",
-         "Net" : 11,
-         "NetName" : "南方网通一",
+         "Host" : "61.129.249.156",
+         "Latency" : 1083,
+         "Name" : "JGFW",
+         "Net" : 31,
+         "NetName" : "南方电信三",
          "Port" : 1818,
          "Select" : 0,
          "SerName" : "行情报价服务",
          "ServiceGroup" : "3",
          "Type" : 3,
          "URL" : ""
-      },
+       },
       {
-         "Host" : "123.129.209.246",
-         "Latency" : 4187,
+         "Host" : "121.52.237.244",
+         "Latency" : 4172,
          "Name" : "HQBJFW",
          "Net" : 11,
-         "NetName" : "北方网通一",
+         "NetName" : "南方网通一",
          "Port" : 1818,
          "Select" : 0,
          "SerName" : "行情报价服务",
@@ -111,7 +111,7 @@
          "Net" : 11,
          "NetName" : "北方通用一",
          "Port" : 1818,
-         "Select" : 0,
+         "Select" : 1,
          "SerName" : "行情报价服务",
          "ServiceGroup" : "3",
          "Type" : 3,
@@ -144,19 +144,6 @@
          "URL" : ""
       },
       {
-         "Host" : "183.136.163.96",
-         "Latency" : 1005,
-         "Name" : "FZKX",
-         "Net" : 11,
-         "NetName" : "测试",
-         "Port" : 1818,
-         "Select" : 0,
-         "SerName" : "历史分钟K线服务",
-         "ServiceGroup" : "6",
-         "Type" : 6,
-         "URL" : ""
-      },
-      {
          "Host" : "180.163.177.36",
          "Latency" : 10,
          "Name" : "FZKX",
@@ -182,21 +169,8 @@
          "Type" : 6,
          "URL" : ""
       },
-      {
-         "Host" : "61.129.129.73",
-         "Latency" : 1005,
-         "Name" : "TJFW",
-         "Net" : 11,
-         "NetName" : "测试",
-         "Port" : 8001,
-         "Select" : 0,
-         "SerName" : "日内跳价服务",
-         "ServiceGroup" : "7",
-         "Type" : 7,
-         "URL" : ""
-      },
 	  {
-         "Host" : "118.178.91.148",
+         "Host" : "118.178.156.21",
          "Latency" : 1005,
          "Name" : "TJFW",
          "Net" : 11,
@@ -235,7 +209,7 @@
          "URL" : ""
       },
       {
-         "Host" : "118.178.91.148",
+         "Host" : "118.178.156.21",
          "Latency" : 5,
          "Name" : "JGQH",
          "Net" : 11,
@@ -245,6 +219,19 @@
          "SerName" : "日内跳价服务期货",
          "ServiceGroup" : "9",
          "Type" : 9,
+         "URL" : ""
+      },
+      {
+         "Host" : "183.131.229.253",
+         "Latency" : 10,
+         "Name" : "XGFW",
+         "Net" : 11,
+         "NetName" : "南方电信一",
+         "Port" : 1818,
+         "Select" : 1,
+         "SerName" : "选股服务",
+         "ServiceGroup" : "10",
+         "Type" : 10,
          "URL" : ""
       }
    ]

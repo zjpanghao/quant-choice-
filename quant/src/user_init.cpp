@@ -64,7 +64,7 @@ void glog_init(std::string name) {
   google::SetLogDestination(google::INFO, "telelog/info");	
   google::SetLogDestination(google::WARNING, "telelog/warn");   
   google::SetLogDestination(google::ERROR, "telelog/error");   
-  FLAGS_logbufsecs = 10;
+  FLAGS_logbufsecs = 0;
 }
 
 static int kafka_init(wrapper_Info *test_info, const char* kafka_server, const char *topic) {
