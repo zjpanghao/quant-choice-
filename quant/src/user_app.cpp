@@ -1,6 +1,7 @@
 #include "user_app.h"
 #include "kafka_client.h"
 #include "glog/logging.h"
+#include <set>
 static wrapper_Info *info_g;
 void set_wrapper_info(wrapper_Info *info) {
   info_g = info;
@@ -39,12 +40,6 @@ int user_recv(const std::list<stock_info::StockInfo> &messages) {
 #ifdef USER_DELTA
     bool r = stock_info::StockLatestInfo::GetInstance()->MergeFullInfo(&full_message);
 #endif
-    if (IsIndex(full_message.code)) {
-      bool rc = stock_info::StockLatestInfo::CaculateChangeRate(&full_message);
-      if (rc == false) {
-        LOG(ERROR) << "rate error";
-      }
-    }
     if (r) {
       message += produce_send_message(full_message);
       message += "\n";

@@ -87,6 +87,7 @@ pcps          emcps = NULL;
 //  global varibles
 volatile bool csq_conn_state_g = false;
 
+bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_data); 
 //转string函数示例
 template<typename T>
 std::string to_str(const T &v)
@@ -99,18 +100,7 @@ std::string to_str(const T &v)
 //日志回调函数示例
 int write2Log(const char* log)
 {
-    printf("%s\n",log);
-    
-    //int fp = open("../bin/log.log", O_RDWR | O_CREAT | O_APPEND, 0640);
-    //if(fp == -1)
-    //{
-    //    return 0;
-    //}
-    //write (fp ,log, strlen(log));
-    //close(fp);
-    
-    //printf("%s\n",log);
-    return 0;
+    LOG(WARNING) << log;
 }
 
 //取EQVARIENT值示例
@@ -323,40 +313,11 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
       return 0;
     } 
     printf("Total stocks=%d\n", pEQData->codeArray.nSize);
-    slinehead = pEQData->dateArray.pChArray[0].pChar;
-    slinehead += " ";
-    for(int i=0;i<pEQData->codeArray.nSize;i++) 
-    {
-      stock_info::StockInfo  info; 
-      info.code =  string(pEQData->codeArray.pChArray[i].pChar);
-      sline += string(pEQData->codeArray.pChArray[i].pChar);
-      sline += " ";
-      for(int j=0;j<pEQData->indicatorArray.nSize;j++) 
-      {
-            if(i == 0)
-            {
-                  slinehead += string(pEQData->indicatorArray.pChArray[j].pChar);
-                  slinehead += " ";
-
-                  if(j == pEQData->indicatorArray.nSize-1)
-                  {
-                     printf("%s\n",slinehead.c_str());
-                  }
-             }
-
-             EQVARIENT* pEQVarient = (*pEQData)(i,j,0);
-             if(pEQVarient)
-             {
-                sline += eqvalue2string(pEQVarient);
-                sline += " ";
-                info.indicators[j] =  eqvalue2string(pEQVarient);
-                    
-             }
-      }
-      market_info.push_back(info);
+    if (false == get_market_data(pEQData, &market_info)) {
+      LOG(ERROR) << "get marekt error";
+      return 0;
     }
-    user_recv(market_info);
-    return 0;
+    return 0; 
 }
 
 static std::list<std::string> get_group_codes(std::list<std::string> total); 
@@ -364,7 +325,6 @@ static bool UpdateMarketCodes();
 static std::string GetIndicators(); 
 void RegisterCsq(const std::list<std::string> &group_codes); 
 bool GetCsqShot(const std::list<std::string> &group_codes); 
-bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_data); 
 
 
 /*
@@ -618,7 +578,6 @@ bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_dat
     EQDATA *pEQData = pData;
     if (!pEQData)
       return false;
-    LOG(INFO) << "get_market_data" << pthread_self();
     string slinehead(""), sline("");
     std::list<stock_info::StockInfo> market_info;
     if(pEQData->dateArray.nSize == 1)
@@ -627,12 +586,8 @@ bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_dat
         slinehead += " ";
         for(int i=0;i<pEQData->codeArray.nSize;i++)
         {
-            // std::string info;
             stock_info::StockInfo  info; 
             info.code =  string(pEQData->codeArray.pChArray[i].pChar);
-            sline += string(pEQData->codeArray.pChArray[i].pChar);
-            sline += " ";
-            //info += " ";
 
             for(int j=0;j<pEQData->indicatorArray.nSize;j++)
             {
@@ -643,25 +598,23 @@ bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_dat
 
                     if(j == pEQData->indicatorArray.nSize-1)
                     {
-                        printf("%s\n",slinehead.c_str());
+                        LOG(INFO) << slinehead;
                     }
                 }
 
                 EQVARIENT* pEQVarient = (*pEQData)(i,j,0);
-                if(pEQVarient)
+                if(pEQVarient && !stock_info::StockLatestInfo::Exclude(j))
                 {
-                    sline += eqvalue2string(pEQVarient);
-                    sline += " ";
                     info.indicators[j] =  eqvalue2string(pEQVarient);
-                    // info += " ";
                     
+                } else {
+                  info.indicators[j] = "--";
                 }
             }
-            sline += "\n";
             market_info.push_back(info);
         }
     }
     user_recv(market_info);
-  return true;
+    return true;
 }
 

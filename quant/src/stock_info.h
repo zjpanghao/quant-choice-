@@ -4,8 +4,25 @@
 #include <string>
 #include <unordered_map>
 #include "glog/logging.h"
-#define EAST_INDICATORS_NUM 53
+#include <set>
+#define EAST_INDICATORS_NUM 52
+
+
 namespace stock_info {
+enum StockIndictor {
+  TIME,
+  NOW,
+  HIGH,
+  LOW,
+  OPEN,
+  PRECLOSE,
+  ROUNDLOT,
+  PCT_CHANGE,
+  VOLUME,
+  AMOUNT,
+  VOLUME_RATIO,
+  COMMITION_DIFF
+};
 
 struct StockInfo {
   std::string code;
@@ -24,10 +41,15 @@ class StockLatestInfo {
     }
     return instance_;
   }
-
+  static bool Exclude(int j) {
+    static const std::set<int> exclude = {StockIndictor::PCT_CHANGE, 
+                                          StockIndictor::VOLUME_RATIO, 
+                                          StockIndictor::COMMITION_DIFF};
+    return exclude.count(j) > 0;
+  }
   static bool CaculateChangeRate(StockInfo *info) {
-    std::string now_price = info->indicators[1];
-    std::string pre_close = info->indicators[5];
+    std::string now_price = info->indicators[StockIndictor::NOW];
+    std::string pre_close = info->indicators[StockIndictor::PRECLOSE];
     if (now_price.length() == 0 || pre_close.length() == 0) {
       return false;
     }
@@ -39,7 +61,7 @@ class StockLatestInfo {
     LOG(INFO) << info->code << " " << rate;
     char tmp[16];
     snprintf(tmp, 16, "%.6lf", rate);
-    info->indicators[7] = tmp;
+    info->indicators[StockIndictor::PCT_CHANGE] = tmp;
     LOG(INFO) << "set " << tmp;
     return true;
   }   
@@ -52,7 +74,10 @@ class StockLatestInfo {
       stock_map_[code] = *info;
       return true;
     }
-    if (info->indicators[0] != "80000" && info->indicators[0] == it->second.indicators[0]) {
+    // makesure only send once each timestamp
+    if (info->indicators[StockIndictor::TIME] == "--" ||
+        (info->indicators[StockIndictor::TIME] != "80000" 
+        && info->indicators[StockIndictor::TIME] == it->second.indicators[StockIndictor::TIME])) {
       return false;
     }
 
@@ -65,15 +90,6 @@ class StockLatestInfo {
     }
     return true;
   }
-#if 0
-  StockInfo GetLatestInfo(std::string code) {
-    return stock_map_[code];
-  }
-
-  void SetLatestInfo(std::string code, const StockInfo &info) {
-    stock_map_[code] = info;
-  }
-#endif
 
  private:
   static StockLatestInfo *instance_;
