@@ -47,6 +47,7 @@ class StockLatestInfo {
                                           StockIndictor::COMMITION_DIFF};
     return exclude.count(j) > 0;
   }
+
   static bool CaculateChangeRate(StockInfo *info) {
     std::string now_price = info->indicators[StockIndictor::NOW];
     std::string pre_close = info->indicators[StockIndictor::PRECLOSE];
@@ -74,21 +75,19 @@ class StockLatestInfo {
       stock_map_[code] = *info;
       return true;
     }
-    // makesure only send once each timestamp
-    if (info->indicators[StockIndictor::TIME] == "--" ||
-        (info->indicators[StockIndictor::TIME] != "80000" 
-        && info->indicators[StockIndictor::TIME] == it->second.indicators[StockIndictor::TIME])) {
-      return false;
-    }
-
+    bool r = false;
     for (int i = 0; i < EAST_INDICATORS_NUM; i++) {
       if (info->indicators[i] == "--") {
         info->indicators[i] = it->second.indicators[i];
       } else {
-        it->second.indicators[i] = info->indicators[i];
+        if (it->second.indicators[i] != info->indicators[i]) {
+          it->second.indicators[i] = info->indicators[i];
+          r = true;
+        }
       }
     }
-    return true;
+    
+    return r;
   }
 
  private:
