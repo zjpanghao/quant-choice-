@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <sstream>
+#include <thread>
 #include <iostream>
 #include <dlfcn.h>
 #include <unistd.h>
@@ -87,7 +88,7 @@ pcps          emcps = NULL;
 //  global varibles
 volatile bool csq_conn_state_g = false;
 
-bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_data); 
+bool GetMarketData(EQDATA *pData, std::list<stock_info::StockInfo> *market_data); 
 //转string函数示例
 template<typename T>
 std::string to_str(const T &v)
@@ -186,14 +187,12 @@ int obtainCallback(const EQMSG* pMsg, LPVOID lpUserParam)
     struct tm current;
     localtime_r(&tt, &current);
     tm *t = &current;
+    char buf[512];
+    snprintf(buf, sizeof(buf), "[%02d:%02d:%02d]Received [%d] callback: msgType=%d, err=%d, requestID=%d, serialID=%d.\n", t->tm_hour, t->tm_min, t->tm_sec, times++, pMsg->msgType, pMsg->err, pMsg->requestID, pMsg->serialID);
 
-    printf("****************************************\n");
-    printf("[%02d:%02d:%02d]Received [%d] callback: msgType=%d, err=%d, requestID=%d, serialID=%d.\n", t->tm_hour, t->tm_min, t->tm_sec, times++, pMsg->msgType, pMsg->err, pMsg->requestID, pMsg->serialID);
-
-
+    LOG(INFO) << buf;
     if(!pMsg->pEQData)
     {
-        printf("****************************************\n");
         return 0;
     }
 
@@ -217,7 +216,7 @@ int obtainCallback(const EQMSG* pMsg, LPVOID lpUserParam)
 
                     if(j == pEQData->indicatorArray.nSize-1)
                     {
-                        printf("%s\n",slinehead.c_str());
+                       LOG(INFO) << slinehead;
                     }
                 }
 
@@ -230,7 +229,7 @@ int obtainCallback(const EQMSG* pMsg, LPVOID lpUserParam)
             }
             sline += "\n";
         }
-        printf("%s",sline.c_str());
+        LOG(INFO) << sline;
     }
     else
     {
@@ -252,8 +251,8 @@ int obtainCallback(const EQMSG* pMsg, LPVOID lpUserParam)
                         slinehead += " ";
 
                         if(j == pEQData->indicatorArray.nSize-1)
-                        {
-                            printf("%s\n",slinehead.c_str());
+                        { 
+                           LOG(INFO) << slinehead;
                         }
                     }
 
@@ -266,13 +265,11 @@ int obtainCallback(const EQMSG* pMsg, LPVOID lpUserParam)
                 }
                 sline += "\n";
             }
-
-            sline += "\n";
-            printf("%s",sline.c_str());
+            LOG(INFO) << sline;
         }
     }
 
-    printf("****************************************\n");
+ //   printf("****************************************\n");
     return 0;
 }
 
@@ -286,9 +283,12 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
     localtime_r(&tt, &current);
     tm *t = &current;
 
-    printf("****************************************\n");
-    printf("[%02d:%02d:%02d]Received [%d] callback: msgType=%d, err=%d, requestID=%d, serialID=%d.\n", t->tm_hour, t->tm_min, t->tm_sec, times++, pMsg->msgType, pMsg->err, pMsg->requestID, pMsg->serialID);
+ //   printf("****************************************\n");
+    char buf[512];
+    snprintf(buf, sizeof(buf), "[%02d:%02d:%02d]Received [%d] callback: msgType=%d, err=%d, requestID=%d, serialID=%d.\n", t->tm_hour, t->tm_min, t->tm_sec, times++, pMsg->msgType, pMsg->err, pMsg->requestID, pMsg->serialID);
+     LOG(INFO) << buf;
     if (pMsg->err == 10002004 || pMsg->err == 10002007) {
+
       csq_conn_state_g = false;
       LOG(ERROR) << "Csq receive error:" << pMsg->err; 
       return 0;
@@ -312,21 +312,25 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
       LOG(ERROR) << "error date size";
       return 0;
     } 
-    printf("Total stocks=%d\n", pEQData->codeArray.nSize);
-    if (false == get_market_data(pEQData, &market_info)) {
-      LOG(ERROR) << "get marekt error";
+   
+    if (GetMarketData(pEQData, &market_info) == false) {
+      LOG(ERROR) << "recv data error";
       return 0;
     }
+    LOG(INFO) << "Total stocks=" << pEQData->codeArray.nSize;
+    LOG(INFO ) << market_info.size(); 
+    user_recv(market_info);
     return 0; 
 }
 
-static std::list<std::string> get_group_codes(std::list<std::string> total); 
+static std::list<std::string> GetGroupCodes(std::list<std::string> total); 
 static bool UpdateMarketCodes(); 
 static std::string GetIndicators(); 
 void RegisterCsq(const std::list<std::string> &group_codes); 
 bool GetCsqShot(const std::list<std::string> &group_codes); 
 
 
+void UpdateNonvariableIndictorThd();
 /*
  * 
  */
@@ -339,7 +343,7 @@ int main(int argc, char** argv) {
     }
 #if 1
     ElectionControl election;
-    const char *server = "192.168.1.106:2181";
+    const char *server = "192.168.1.74:2181";
     if (election.Init(server, 500) == false) {
       printf("Init election failed!\n");
       return -1;
@@ -418,8 +422,11 @@ int main(int argc, char** argv) {
     int day = -1;
     bool csq_reg = false;
     const int UPDATE_HOUR = 9;
+    const int UPDATE_MINUTE = 15;
     bool day_update = false;
-    auto NeedUpdate = [] (int hour, int day_update) { return hour == UPDATE_HOUR && !day_update;};
+    auto TimeUpdate = [] (int hour, int min) { return hour >= UPDATE_HOUR && min >= UPDATE_MINUTE;};
+    // std::thread update(UpdateNonvariableIndictorThd);
+    // update.detach();
     while(1) {
       time_t now = time(NULL);
       struct tm current;
@@ -427,10 +434,10 @@ int main(int argc, char** argv) {
       if (current.tm_hour == 0) {
         day_update = false; 
       }
-      if (!csq_conn_state_g || NeedUpdate(current.tm_hour, day_update) || !csq_reg) {
+      if (!csq_conn_state_g || (!day_update && TimeUpdate(current.tm_hour, current.tm_min))|| !csq_reg) {
         if (UpdateMarketCodes()) {
           csq_reg = true;
-          if (current.tm_hour >= UPDATE_HOUR) {
+          if (TimeUpdate(current.tm_hour, current.tm_min)) {
             day_update = true;
           }
         }
@@ -487,7 +494,7 @@ bool GetCsqShot(const std::list<std::string> &group_codes) {
       }
       if (pCtrData) {
         std::list<stock_info::StockInfo> market_info;
-        get_market_data(pCtrData, &market_info);
+        GetMarketData(pCtrData, &market_info);
         emreleasedata(pCtrData);
         user_recv(market_info);
       }
@@ -506,7 +513,7 @@ void RegisterCsq(const std::list<std::string> &group_codes) {
 #else
       std::string push_type = "Pushtype=1";
 #endif
-      printf("%s", push_type.c_str());
+      // printf("%s", push_type.c_str());
       LOG(INFO) << emcsq(group_code.c_str(), indicators.c_str(), push_type.c_str(), csqCallback, NULL);
       it++;
     }
@@ -528,17 +535,20 @@ std::string GetIndicators() {
   return indicators;                            
 }
 
+
 bool UpdateMarketCodes() {
   std::list<std::string> codes = GetAcodes();
   if (codes.empty()) {
     printf("Error fetch acodes");
     return false;
   }
+  
   if (0 != emcsqcancel(0)) {
     LOG(ERROR) << "Cancel error";
     return false;
   }
-  std::list<std::string> group_codes = get_group_codes(codes);
+  
+  std::list<std::string> group_codes = GetGroupCodes(codes);
   if (group_codes.empty())
     return false;
 
@@ -551,7 +561,7 @@ bool UpdateMarketCodes() {
   return true;
 }
 
-std::list<std::string> get_group_codes(std::list<std::string> total) {
+std::list<std::string> GetGroupCodes(std::list<std::string> total) {
   std::list<std::string> result;
   int size_per_group = 1000;
   auto it = total.begin();
@@ -562,7 +572,6 @@ std::list<std::string> get_group_codes(std::list<std::string> total) {
     if (++count == size_per_group) {
       count = 0;
       result.push_back(group_codes);
-      printf("add %s", group_codes.c_str());
       group_codes.clear();
     } else if (it != total.end()) {
       group_codes.append(",");
@@ -574,47 +583,46 @@ std::list<std::string> get_group_codes(std::list<std::string> total) {
   return result;
 }
 
-bool get_market_data(EQDATA *pData, std::list<stock_info::StockInfo> *market_data) {
+bool GetMarketData(EQDATA *pData, std::list<stock_info::StockInfo> *market_data) {
     EQDATA *pEQData = pData;
     if (!pEQData)
       return false;
-    string slinehead(""), sline("");
-    std::list<stock_info::StockInfo> market_info;
-    if(pEQData->dateArray.nSize == 1)
-    {
-        slinehead = pEQData->dateArray.pChArray[0].pChar;
-        slinehead += " ";
-        for(int i=0;i<pEQData->codeArray.nSize;i++)
-        {
-            stock_info::StockInfo  info; 
-            info.code =  string(pEQData->codeArray.pChArray[i].pChar);
-
-            for(int j=0;j<pEQData->indicatorArray.nSize;j++)
-            {
-                if(i == 0)
-                {
-                    slinehead += string(pEQData->indicatorArray.pChArray[j].pChar);
-                    slinehead += " ";
-
-                    if(j == pEQData->indicatorArray.nSize-1)
-                    {
-                        LOG(INFO) << slinehead;
-                    }
-                }
-
-                EQVARIENT* pEQVarient = (*pEQData)(i,j,0);
-                if(pEQVarient && !stock_info::StockLatestInfo::Exclude(j))
-                {
-                    info.indicators[j] =  eqvalue2string(pEQVarient);
-                    
-                } else {
-                  info.indicators[j] = "--";
-                }
-            }
-            market_info.push_back(info);
+    std::list<stock_info::StockInfo> &market_info = *market_data;
+    if(pEQData->dateArray.nSize != 1)
+      return false;
+    for(int i=0;i<pEQData->codeArray.nSize;i++) {
+      stock_info::StockInfo  info; 
+      info.code =  string(pEQData->codeArray.pChArray[i].pChar);
+      for(int j=0;j<pEQData->indicatorArray.nSize;j++) {
+        EQVARIENT* pEQVarient = (*pEQData)(i,j,0);
+        if(pEQVarient && !stock_info::StockLatestInfo::Exclude(j)) {
+          info.indicators[j] =  eqvalue2string(pEQVarient);
+        } else {
+          info.indicators[j] = "--";
         }
+      }
+      market_info.push_back(info);
     }
-    user_recv(market_info);
     return true;
 }
+
+void UpdateNonvariableIndictorThd() {
+  while (true) {
+    sleep(60);
+    std::list<std::string> codes = GetAcodes();
+    if (codes.empty()) {
+      LOG(ERROR) << "Error fetch acodes";
+      continue;;
+    }
+    std::list<std::string> group_codes = GetGroupCodes(codes);
+    if (group_codes.empty())
+      continue;
+#ifdef USER_DELTA
+    if (!GetCsqShot(group_codes))
+      continue;
+#endif
+  }
+}
+
+
 

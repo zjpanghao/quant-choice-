@@ -28,6 +28,16 @@ static bool IsIndex(std::string code) {
   return false;
 }
 
+int user_update(const std::list<stock_info::StockInfo> &messages) {
+  for (const auto &send : messages) {
+    // LOG(INFO) << pthread_self() << "user_update:" << produce_send_message(send);
+#ifdef USER_DELTA
+    stock_info::StockLatestInfo::GetInstance()->UpdateNonvariable(send);
+#endif
+  }
+  return 0;
+}
+
 int user_recv(const std::list<stock_info::StockInfo> &messages) {
   
   int rc = 0;
