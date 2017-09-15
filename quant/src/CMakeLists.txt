@@ -1,7 +1,0 @@
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../bin/)
-SET(CMAKE_CXX_COMPILER "g++")
-add_definitions(-std=c++11)
-include_directories(/home/panghao/quant/EmQuantAPI  /home/panghao/include/zookeeper /home/panghao/include)
-link_directories(/home/panghao/libs/zookeeper /home/panghao/libs)
-add_executable(quant main.cpp kafka_client.cpp stock_info.cpp user_init.cpp user_app.cpp)
-target_link_libraries(quant zookeeper_mt rdkafka glog dl)
