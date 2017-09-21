@@ -189,6 +189,10 @@ int obtainCallback(const EQMSG* pMsg, LPVOID lpUserParam)
     tm *t = &current;
     char buf[512];
     snprintf(buf, sizeof(buf), "[%02d:%02d:%02d]Received [%d] callback: msgType=%d, err=%d, requestID=%d, serialID=%d.\n", t->tm_hour, t->tm_min, t->tm_sec, times++, pMsg->msgType, pMsg->err, pMsg->requestID, pMsg->serialID);
+    if(pMsg->msgType == eMT_err && pMsg->err != EQERR_SUCCESS) {
+      printf("error %d\r\n", pMsg->err);
+      return 0;
+    }
 
     LOG(INFO) << buf;
     if(!pMsg->pEQData)
@@ -329,8 +333,6 @@ static std::string GetIndicators();
 void RegisterCsq(const std::list<std::string> &group_codes); 
 bool GetCsqShot(const std::list<std::string> &group_codes); 
 
-
-void UpdateNonvariableIndictorThd();
 /*
  * 
  */
@@ -521,7 +523,7 @@ void RegisterCsq(const std::list<std::string> &group_codes) {
 
 std::string GetIndicators() {
   const char* indicatorCSQ = 
-        "Time,Now,High,Low,Open,PRECLOSE,Roundlot,PctChange,Volume,Amount,VolumeRatio,CommissionDiff";
+        "Time,Now,High,Low,Open,PRECLOSE,Roundlot,Volume,Amount";
     char deal_csq [1024];
     const char *deals[] = {"BuyPrice", "BuyVolume", "SellPrice", "SellVolume"};
     std::string indicators(indicatorCSQ);
@@ -591,14 +593,18 @@ bool GetMarketData(EQDATA *pData, std::list<stock_info::StockInfo> *market_data)
     if(pEQData->dateArray.nSize != 1)
       return false;
     for(int i=0;i<pEQData->codeArray.nSize;i++) {
-      stock_info::StockInfo  info; 
-      info.code =  string(pEQData->codeArray.pChArray[i].pChar);
+      const char *stock_code = pEQData->codeArray.pChArray[i].pChar;
+      if (!stock_code) {
+        continue;
+      }
+      stock_info::StockInfo  info(stock_code); 
       for(int j=0;j<pEQData->indicatorArray.nSize;j++) {
+        
         EQVARIENT* pEQVarient = (*pEQData)(i,j,0);
-        if(pEQVarient && !stock_info::StockLatestInfo::Exclude(j)) {
-          info.indicators[j] =  eqvalue2string(pEQVarient);
+        if(pEQVarient) {
+          info.SetIndex(j, eqvalue2string(pEQVarient));
         } else {
-          info.indicators[j] = "--";
+          info.SetIndex(j, NULL_INDICTOR);
         }
       }
       market_info.push_back(info);
@@ -606,23 +612,6 @@ bool GetMarketData(EQDATA *pData, std::list<stock_info::StockInfo> *market_data)
     return true;
 }
 
-void UpdateNonvariableIndictorThd() {
-  while (true) {
-    sleep(60);
-    std::list<std::string> codes = GetAcodes();
-    if (codes.empty()) {
-      LOG(ERROR) << "Error fetch acodes";
-      continue;;
-    }
-    std::list<std::string> group_codes = GetGroupCodes(codes);
-    if (group_codes.empty())
-      continue;
-#ifdef USER_DELTA
-    if (!GetCsqShot(group_codes))
-      continue;
-#endif
-  }
-}
 
 
 
