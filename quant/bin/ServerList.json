@@ -53,19 +53,6 @@
          "URL" : ""
       },
       {
-         "Host" : "61.129.249.156",
-         "Latency" : 1083,
-         "Name" : "JGFW",
-         "Net" : 31,
-         "NetName" : "南方电信三",
-         "Port" : 1818,
-         "Select" : 0,
-         "SerName" : "行情报价服务",
-         "ServiceGroup" : "3",
-         "Type" : 3,
-         "URL" : ""
-       },
-      {
          "Host" : "121.52.237.244",
          "Latency" : 4172,
          "Name" : "HQBJFW",
@@ -111,7 +98,7 @@
          "Net" : 11,
          "NetName" : "北方通用一",
          "Port" : 1818,
-         "Select" : 1,
+         "Select" : 0,
          "SerName" : "行情报价服务",
          "ServiceGroup" : "3",
          "Type" : 3,
@@ -141,6 +128,32 @@
          "SerName" : "心跳服务",
          "ServiceGroup" : "4",
          "Type" : 4,
+         "URL" : ""
+      },
+	  {
+         "Host" : "183.136.162.65",
+         "Latency" : 10,
+         "Name" : "ZHGL",
+         "Net" : 11,
+         "NetName" : "南方电信一",
+         "Port" : 1818,
+         "Select" : 1,
+         "SerName" : "组合管理服务Choice线上",
+         "ServiceGroup" : "5",
+         "Type" : 5,
+         "URL" : ""
+      },
+	  {
+         "Host" : "183.131.229.68",
+         "Latency" : 10,
+         "Name" : "ZHGL",
+         "Net" : 11,
+         "NetName" : "南方电信一",
+         "Port" : 1818,
+         "Select" : 0,
+         "SerName" : "组合管理服务",
+         "ServiceGroup" : "5",
+         "Type" : 5,
          "URL" : ""
       },
       {
@@ -221,17 +234,43 @@
          "Type" : 9,
          "URL" : ""
       },
-      {
+	  {
          "Host" : "183.131.229.253",
          "Latency" : 10,
          "Name" : "XGFW",
          "Net" : 11,
          "NetName" : "南方电信一",
          "Port" : 1818,
-         "Select" : 1,
+         "Select" : 0,
          "SerName" : "选股服务",
          "ServiceGroup" : "10",
          "Type" : 10,
+         "URL" : ""
+      },
+	  {
+         "Host" : "61.129.248.204",
+         "Latency" : 11,
+         "Name" : "QHKX",
+         "Net" : 11,
+         "NetName" : "南方电信一",
+         "Port" : 1818,
+         "Select" : 0,
+         "SerName" : "期货K线服务",
+         "ServiceGroup" : "11",
+         "Type" : 11,
+         "URL" : ""
+      },
+	  {
+         "Host" : "61.129.248.205",
+         "Latency" : 11,
+         "Name" : "QHKX",
+         "Net" : 11,
+         "NetName" : "南方电信一",
+         "Port" : 1818,
+         "Select" : 0,
+         "SerName" : "期货K线服务",
+         "ServiceGroup" : "11",
+         "Type" : 11,
          "URL" : ""
       }
    ]

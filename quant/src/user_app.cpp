@@ -9,31 +9,8 @@ void set_wrapper_info(wrapper_Info *info) {
 
 constexpr int KAF_PACKET_SIZE = 10 * 1024;
 
-static std::string produce_send_message(const stock_info::StockInfo &info) {
-  std::string message = info.code + " ";
-  for (const auto & indicator : info.indicators) {
-    message += indicator;
-    message += " ";
-  }
-  return message;
-}
-
-static bool IsIndex(std::string code) {
-  if (code == "000001.SH" ||
-      code == "000300.SH" ||
-      code == "399006.SZ" ||
-      code == "399001.SZ") {
-    return true;
-  }
-  return false;
-}
-
 int user_update(const std::list<stock_info::StockInfo> &messages) {
   for (const auto &send : messages) {
-    // LOG(INFO) << pthread_self() << "user_update:" << produce_send_message(send);
-#ifdef USER_DELTA
-    stock_info::StockLatestInfo::GetInstance()->UpdateNonvariable(send);
-#endif
   }
   return 0;
 }
@@ -45,13 +22,13 @@ int user_recv(const std::list<stock_info::StockInfo> &messages) {
   int count = 0;
   for (const auto &send : messages) {
     auto full_message = send;
-    std::string origin = produce_send_message(send);
+    std::string origin = send.produce_send_message();
     LOG(INFO) << pthread_self() << "origin:" << origin;
 #ifdef USER_DELTA
     bool r = stock_info::StockLatestInfo::GetInstance()->MergeFullInfo(&full_message);
 #endif
     if (r) {
-      message += produce_send_message(full_message);
+      message += full_message.produce_send_message();
       message += "\n";
     }
     count++;

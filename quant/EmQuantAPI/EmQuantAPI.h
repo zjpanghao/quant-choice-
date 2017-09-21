@@ -1,5 +1,5 @@
 /**************************************************************************************************
-*   EmQuantAPI.h    version  2.0.0.0                                                              *                                                                      *
+*   EmQuantAPI.h    version  2.0.1.0                                                              *                                                                      *
 *   Copyright(c)2016-2017,  EastMoney Information  Co,. Ltd. All Rights Reserved.                 *
 *   Eastmoney API must not be used without authorzation, unauthorized user shall be held liable.  *                                                                  *
 ***************************************************************************************************/
@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-#define EMQUNANTAPIVER 2001
+#define EMQUNANTAPIVER 2010
 
 #ifdef WIN32
 #ifdef EMQUANTAPI_EXPORTS
@@ -32,152 +32,156 @@ typedef void* LPVOID;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //成功
-#define EQERR_SUCCESS                 (0)
-//错误基数                            
-#define EQERR_BASE                    (10000000)
-//一般性错误                          
-#define EQERR_BASE_GENERAL            (EQERR_BASE)
-//账户相关错误
-#define EQERR_BASE_ACCOUT             (EQERR_BASE + 1000)
-//网络相关错误                        
-#define EQERR_BASE_NET                (EQERR_BASE + 2000)
-//参数或请求错误                      
-#define EQERR_BASE_PARAM              (EQERR_BASE + 3000)
+#define EQERR_SUCCESS                  (0)
+//错误基数                             
+#define EQERR_BASE                     (10000000)
+//一般性错误                           
+#define EQERR_BASE_GENERAL             (EQERR_BASE)
+//账户相关错误						 
+#define EQERR_BASE_ACCOUT              (EQERR_BASE + 1000)
+//网络相关错误                         
+#define EQERR_BASE_NET                 (EQERR_BASE + 2000)
+//参数或请求错误                       
+#define EQERR_BASE_PARAM               (EQERR_BASE + 3000)
 
 
 #pragma region 账户相关错误 
 //用户未登录
-#define EQERR_NO_LOGIN                (EQERR_BASE_ACCOUT + 1)
-//用户名或密码错误
-#define EQERR_USERNAMEORPASSWORD_ERR  (EQERR_BASE_ACCOUT + 2)
-//用户无API权限
-#define EQERR_NO_ACCESS               (EQERR_BASE_ACCOUT + 3)
-//用户API权限过期
-#define EQERR_ACCESS_EXPIRE           (EQERR_BASE_ACCOUT + 4)
-//获取用户信息失败
-#define EQERR_GETUSERINFO_FAIL        (EQERR_BASE_ACCOUT + 5)
-//DLL版本号过期
-#define EQERR_DLLVESION_EXPIRE        (EQERR_BASE_ACCOUT + 6)
-//用户无API_LV2权限
-#define EQERR_NO_LV2_ACCESS           (EQERR_BASE_ACCOUT + 7)
-//用户API_LV2权限过期
-#define EQERR_LV2_ACCESS_EXPIRE       (EQERR_BASE_ACCOUT + 8)
-//账号登录数达到上限
-#define EQERR_LOGIN_COUNT_LIMIT       (EQERR_BASE_ACCOUT + 9)
-//用户登录失败
-#define EQERR_LOGIN_FAIL              (EQERR_BASE_ACCOUT + 10)
-//用户登录掉线
-#define EQERR_LOGIN_DISCONNECT        (EQERR_BASE_ACCOUT + 11)
-//用户权限不足
-#define EQERR_ACCESS_INSUFFICIENCE    (EQERR_BASE_ACCOUT + 12)
-//用户正在登录
-#define EQERR_IS_LOGIN                (EQERR_BASE_ACCOUT + 13)
-//需要登录激活
-#define EQERR_NEED_ACTIVATE           (EQERR_BASE_ACCOUT + 14)
-//登录服务异常
-#define EQERR_LOGIN_SERVICE_ERR       (EQERR_BASE_ACCOUT + 15)
-//正在人工激活
-#define EQERR_IS_MANUAL_ACTIVATE      (EQERR_BASE_ACCOUT + 16)
-//无需人工激活
-#define EQERR_NOTNEED_MANUAL_ACTIVATE (EQERR_BASE_ACCOUT + 17)
-//人工激活失败
-#define EQERR_MANUAL_ACTIVATE_FAIL    (EQERR_BASE_ACCOUT + 18)
-//靠靠靠靠靠靠
-#define EQERR_DIFFRENT_DEVICE         (EQERR_BASE_ACCOUT + 19)
-////userInfo靠靠靠靠
-#define EQERR_USERINFO_EXPIRED        (EQERR_BASE_ACCOUT + 20)
-
+#define EQERR_NO_LOGIN                 (EQERR_BASE_ACCOUT + 1)
+//用户名或密码错误					   
+#define EQERR_USERNAMEORPASSWORD_ERR   (EQERR_BASE_ACCOUT + 2)
+//用户无API权限						  
+#define EQERR_NO_ACCESS                (EQERR_BASE_ACCOUT + 3)
+//用户API权限过期						 
+#define EQERR_ACCESS_EXPIRE            (EQERR_BASE_ACCOUT + 4)
+//获取用户信息失败					   
+#define EQERR_GETUSERINFO_FAIL         (EQERR_BASE_ACCOUT + 5)
+//DLL版本号过期						  
+#define EQERR_DLLVESION_EXPIRE         (EQERR_BASE_ACCOUT + 6)
+//用户无API_LV2权限					  
+#define EQERR_NO_LV2_ACCESS            (EQERR_BASE_ACCOUT + 7)
+//用户API_LV2权限过期					 
+#define EQERR_LV2_ACCESS_EXPIRE        (EQERR_BASE_ACCOUT + 8)
+//账号登录数达到上限					  
+#define EQERR_LOGIN_COUNT_LIMIT        (EQERR_BASE_ACCOUT + 9)
+//用户登录失败						 
+#define EQERR_LOGIN_FAIL               (EQERR_BASE_ACCOUT + 10)
+//用户登录掉线						 
+#define EQERR_LOGIN_DISCONNECT         (EQERR_BASE_ACCOUT + 11)
+//用户权限不足						 
+#define EQERR_ACCESS_INSUFFICIENCE     (EQERR_BASE_ACCOUT + 12)
+//用户正在登录						 
+#define EQERR_IS_LOGIN                 (EQERR_BASE_ACCOUT + 13)
+//需要登录激活						 
+#define EQERR_NEED_ACTIVATE            (EQERR_BASE_ACCOUT + 14)
+//登录服务异常						 
+#define EQERR_LOGIN_SERVICE_ERR        (EQERR_BASE_ACCOUT + 15)
+//正在人工激活						 
+#define EQERR_IS_MANUAL_ACTIVATE       (EQERR_BASE_ACCOUT + 16)
+//无需人工激活						 
+#define EQERR_NOTNEED_MANUAL_ACTIVATE  (EQERR_BASE_ACCOUT + 17)
+//人工激活失败						 
+#define EQERR_MANUAL_ACTIVATE_FAIL     (EQERR_BASE_ACCOUT + 18)
+//激活设备与登录设备不一致			   
+#define EQERR_DIFFRENT_DEVICE          (EQERR_BASE_ACCOUT + 19)
+//userInfo已失效需重新激活			   
+#define EQERR_USERINFO_EXPIRED         (EQERR_BASE_ACCOUT + 20)
 #pragma  endregion    
 
 #pragma region 一般性错误             
 //获取交易日失败                      
-#define EQERR_GET_TRADE_FAIL          (EQERR_BASE_GENERAL + 1)
-//初始化主类失败                
-#define EQERR_INIT_OBTAIN_CLASS_FAIL  (EQERR_BASE_GENERAL + 2)
-//申请内存失败                        
-#define EQERR_NEW_MEM_FAIL            (EQERR_BASE_GENERAL + 3)
-//解析数据错误                        
-#define EQERR_PARSE_DATA_ERR          (EQERR_BASE_GENERAL + 4)
-//gzip解压失败                        
-#define EQERR_UNGZIP_DATA_FAIL        (EQERR_BASE_GENERAL + 5)
-//未知错误
-#define EQERR_UNKNOWN_ERR             (EQERR_BASE_GENERAL + 6)
-//函数内部错误
-#define EQERR_FUNCTION_INTERNAL_ERR   (EQERR_BASE_GENERAL + 7)
-//数组越界
-#define EQERR_OUTOF_BOUNDS            (EQERR_BASE_GENERAL + 8)
-//无数据
-#define EQERR_NO_DATA                 (EQERR_BASE_GENERAL + 9)
-//系统级别错误
-#define EQERR_SYSTEM_ERROR            (EQERR_BASE_GENERAL + 10)
-//服务器列表错误                         
-#define EQERR_SERVERLIST_ERROR        (EQERR_BASE_GENERAL + 11)
-//操作失败
-#define EQERR_OPERATION_FAILURE       (EQERR_BASE_GENERAL + 12)
-//服务出错
-#define EQERR_SERVICE_ERROR           (EQERR_BASE_GENERAL + 13)
+#define EQERR_GET_TRADE_FAIL           (EQERR_BASE_GENERAL + 1)
+//初始化主类失败                	    
+#define EQERR_INIT_OBTAIN_CLASS_FAIL   (EQERR_BASE_GENERAL + 2)
+//申请内存失败                         
+#define EQERR_NEW_MEM_FAIL             (EQERR_BASE_GENERAL + 3)
+//解析数据错误                         
+#define EQERR_PARSE_DATA_ERR           (EQERR_BASE_GENERAL + 4)
+//gzip解压失败                         
+#define EQERR_UNGZIP_DATA_FAIL         (EQERR_BASE_GENERAL + 5)
+//未知错误							   
+#define EQERR_UNKNOWN_ERR              (EQERR_BASE_GENERAL + 6)
+//函数内部错误						 
+#define EQERR_FUNCTION_INTERNAL_ERR    (EQERR_BASE_GENERAL + 7)
+//数组越界							   
+#define EQERR_OUTOF_BOUNDS             (EQERR_BASE_GENERAL + 8)
+//无数据							    
+#define EQERR_NO_DATA                  (EQERR_BASE_GENERAL + 9)
+//系统级别错误						 
+#define EQERR_SYSTEM_ERROR             (EQERR_BASE_GENERAL + 10)
+//服务器列表错误                          
+#define EQERR_SERVERLIST_ERROR         (EQERR_BASE_GENERAL + 11)
+//操作失败							   
+#define EQERR_OPERATION_FAILURE        (EQERR_BASE_GENERAL + 12)
+//服务出错							   
+#define EQERR_SERVICE_ERROR            (EQERR_BASE_GENERAL + 13)
 
 #pragma  endregion                    
 
 #pragma region 网络相关错误           
 //网络错误                            
-#define EQERR_SOCKET_ERR              (EQERR_BASE_NET + 1)
-//网络连接失败                        
-#define EQERR_CONNECT_FAIL            (EQERR_BASE_NET + 2)
-//网络连接超时                        
-#define EQERR_CONNECT_TIMEOUT         (EQERR_BASE_NET + 3)
-//网络接收时连接断开
-#define EQERR_RECVCONNECTION_CLOSED   (EQERR_BASE_NET + 4)
-//网络发送失败                        
-#define EQERR_SENDSOCK_FAIL           (EQERR_BASE_NET + 5)
-//网络发送超时                        
-#define EQERR_SENDSOCK_TIMEOUT        (EQERR_BASE_NET + 6)
-//网络接收错误                        
-#define EQERR_RECVSOCK_FAIL           (EQERR_BASE_NET + 7)
-//网络接收超时                        
-#define EQERR_RECVSOCK_TIMEOUT        (EQERR_BASE_NET + 8)
+#define EQERR_SOCKET_ERR               (EQERR_BASE_NET + 1)
+//网络连接失败                         
+#define EQERR_CONNECT_FAIL             (EQERR_BASE_NET + 2)
+//网络连接超时                         
+#define EQERR_CONNECT_TIMEOUT          (EQERR_BASE_NET + 3)
+//网络接收时连接断开					  
+#define EQERR_RECVCONNECTION_CLOSED    (EQERR_BASE_NET + 4)
+//网络发送失败                         
+#define EQERR_SENDSOCK_FAIL            (EQERR_BASE_NET + 5)
+//网络发送超时                         
+#define EQERR_SENDSOCK_TIMEOUT         (EQERR_BASE_NET + 6)
+//网络接收错误                         
+#define EQERR_RECVSOCK_FAIL            (EQERR_BASE_NET + 7)
+//网络接收超时                         
+#define EQERR_RECVSOCK_TIMEOUT         (EQERR_BASE_NET + 8)
 #pragma  endregion
 
 #pragma region 参数或请求错误
 //传入参数为空
-#define EQERR_INPARAM_EMPTY       (EQERR_BASE_PARAM + 1)
-//传出参数为空
-#define EQERR_OUTPARAM_EMPTY      (EQERR_BASE_PARAM + 2)
-//参数错误
-#define EQERR_PARAM_ERR           (EQERR_BASE_PARAM + 3)
-//起始日期格式不正确
-#define EQERR_START_DATE_ERR      (EQERR_BASE_PARAM + 4)
-//截止日期格式不正确  
-#define EQERR_END_DATE_ERR        (EQERR_BASE_PARAM + 5)
-//起始日期大于截至日期
-#define EQERR_START_BIGTHAN_END   (EQERR_BASE_PARAM + 6)
-//日期格式不正确  
-#define EQERR_DATE_ERR            (EQERR_BASE_PARAM + 7)
-//无效的证券代码
-#define EQERR_CODE_INVALIED       (EQERR_BASE_PARAM + 8)
-//证券代码重复
-#define EQERR_CODE_REPEAT         (EQERR_BASE_PARAM + 9)
-//无效的指标
-#define EQERR_INDICATOR_INVALIED  (EQERR_BASE_PARAM + 10)
-//用户名为空
-#define EQERR_USERNAME_EMPTY      (EQERR_BASE_PARAM + 11)
-//密码为空
-#define EQERR_PASSWORD_EMPTY      (EQERR_BASE_PARAM + 12)
-//订阅数或股票总数达到上限
-#define EQERR_TO_UPPER_LIMIT      (EQERR_BASE_PARAM + 13)
-//不支持的混合指标
-#define EQERR_MIXED_INDICATOR     (EQERR_BASE_PARAM + 14)
-//单次订阅指标达到上限
-#define EQERR_INDICATOR_TO_UPPER_LIMIT  (EQERR_BASE_PARAM + 15)
-//超出日期支持范围
-#define EQERR_BEYOND_DATE_SUPPORT (EQERR_BASE_PARAM + 16)
-//复权基期小于截止日期
-#define EQERR_BASE_LESS_THAN_END  (EQERR_BASE_PARAM + 17)
-//不支持的混合证券品种
-#define EQERR_MIXED_CODES_MARKET  (EQERR_BASE_PARAM + 18)
-//不支持的证券代码品种
+#define EQERR_INPARAM_EMPTY            (EQERR_BASE_PARAM + 1)
+//传出参数为空					       
+#define EQERR_OUTPARAM_EMPTY           (EQERR_BASE_PARAM + 2)
+//参数错误						       
+#define EQERR_PARAM_ERR                (EQERR_BASE_PARAM + 3)
+//起始日期格式不正确				      
+#define EQERR_START_DATE_ERR           (EQERR_BASE_PARAM + 4)
+//截止日期格式不正确  			       
+#define EQERR_END_DATE_ERR             (EQERR_BASE_PARAM + 5)
+//起始日期大于截至日期			       
+#define EQERR_START_BIGTHAN_END        (EQERR_BASE_PARAM + 6)
+//日期格式不正确  				        
+#define EQERR_DATE_ERR                 (EQERR_BASE_PARAM + 7)
+//无效的证券代码				        
+#define EQERR_CODE_INVALIED            (EQERR_BASE_PARAM + 8)
+//证券代码重复					       
+#define EQERR_CODE_REPEAT              (EQERR_BASE_PARAM + 9)
+//无效的指标						      
+#define EQERR_INDICATOR_INVALIED       (EQERR_BASE_PARAM + 10)
+//用户名为空						      
+#define EQERR_USERNAME_EMPTY           (EQERR_BASE_PARAM + 11)
+//密码为空						       
+#define EQERR_PASSWORD_EMPTY           (EQERR_BASE_PARAM + 12)
+//订阅数或股票总数达到上限		       
+#define EQERR_TO_UPPER_LIMIT           (EQERR_BASE_PARAM + 13)
+//不支持的混合指标				       
+#define EQERR_MIXED_INDICATOR          (EQERR_BASE_PARAM + 14)
+//单次订阅指标达到上限				 
+#define EQERR_INDICATOR_TO_UPPER_LIMIT (EQERR_BASE_PARAM + 15)
+//超出日期支持范围					   
+#define EQERR_BEYOND_DATE_SUPPORT      (EQERR_BASE_PARAM + 16)
+//复权基期小于截止日期			       
+#define EQERR_BASE_LESS_THAN_END       (EQERR_BASE_PARAM + 17)
+//不支持的混合证券品种			       
+#define EQERR_MIXED_CODES_MARKET       (EQERR_BASE_PARAM + 18)
+//不支持的证券代码品种				 
 #define EQERR_NO_SUPPORT_CODES_MARKET  (EQERR_BASE_PARAM + 19)
-
+//交易条数超过上限					   
+#define EQERR_ORDER_TO_UPPER_LIMIT     (EQERR_BASE_PARAM + 20)
+//不支持的交易信息				       
+#define EQERR_NO_SUPPORT_ORDERINFO     (EQERR_BASE_PARAM + 21)
+//指标重复						 
+#define EQERR_INDICATOR_REPEAT         (EQERR_BASE_PARAM + 22)
 #pragma  endregion
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,7 +232,20 @@ typedef enum
 	ePT_SOCK5                            // SOCK5代理
 } ProxyType;
 
+//下单操作类型枚举
+typedef enum 
+{
+	eOT_default,                         // 默认(默认则根据传入数量的正负标志买入eOT_buy卖出eOT_Sell,其余类型对数量作正负转换)
+	eOT_buy,						     // 买入
+	eOT_sell,						     // 卖出
+	eOT_purchase,						 // 申购
+	eOT_redemption,                      // 赎回
+} OperateType;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#pragma pack(push)
+#pragma pack(8)
 
 //char数组封装结构体
 typedef struct _tagEQCHAR
@@ -368,8 +385,6 @@ typedef struct _tagEQCtrData
 
 } EQCTRDATA;
 
-#pragma pack(push)
-#pragma pack(1)
 // 登录信息
 #define MAXSTRING 255
 typedef struct _tagEQLOGININFO
@@ -377,6 +392,21 @@ typedef struct _tagEQLOGININFO
 	char userName[MAXSTRING];                        //登录用户名
 	char password[MAXSTRING];                        //登录密码
 } EQLOGININFO;
+
+//下单信息
+typedef struct _tagORDERINFO
+{
+	char         code[16];                           //证券代码
+	double       volume;                             //交易数量
+	float        price;                              //交易价格
+	int          date;                               //交易日期 yyyymmdd  8位数
+	int          time;                               //交易时间 hhmmss    6位数
+	OperateType  optype;                             //操作类型
+	float        cost;                               //费用
+	float        rate;                               //费率
+	int          reserve;                            //保留字段
+} ORDERINFO, *PORDERINFO;
+
 #pragma pack(pop)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -450,6 +480,12 @@ EMQUANTAPI EQErr ctr(const char* ctrName, const char* indicators, const char* op
 //cpsOptions:    其他附加条件,如排序,取前N条选股结果等
 //pEQData:       选股结果
 EMQUANTAPI EQErr cps(const char* cpsCodes, const char* cpsIndicators, const char* cpsConditions, const char* cpsOptions, EQDATA*& pEQData);
+
+//组合账户关系查询(同步请求)
+EMQUANTAPI EQErr pquery(const char* options, EQDATA*& pEQData);
+
+//批量下单(同步请求)
+EMQUANTAPI EQErr porder(ORDERINFO* pOrderInfo, int orderInfoSize, const char* accountId, const char* remark, const char* options);
 
 //仅供静态数据同步接口返回数据指针释放内存
 EMQUANTAPI EQErr releasedata(void* pEQData);
