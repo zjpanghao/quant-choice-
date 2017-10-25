@@ -4,7 +4,6 @@
 #include <list>
 #include "stock_info.h"
 struct wrapper_Info;
-int user_recv(const std::list<stock_info::StockInfo> &messages);
-int user_update(const std::list<stock_info::StockInfo> &messages);
+int user_recv(const std::map<std::string, CsqInfo> &messages);
 void set_wrapper_info(wrapper_Info *info);
 #endif
