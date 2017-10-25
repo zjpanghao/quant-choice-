@@ -10,7 +10,7 @@
  *
  * Created on 2016年9月2日, 上午10:07
  */
-
+#include <map>
 #include <string>
 #include <set>
 #include <string.h>
@@ -88,7 +88,7 @@ pcps          emcps = NULL;
 //  global varibles
 volatile bool csq_conn_state_g = false;
 
-bool GetMarketData(EQDATA *pData, std::list<stock_info::StockInfo> *market_data); 
+bool GetMarketData(EQDATA *pData, std::map<std::string, CsqInfo> *market_data); 
 //转string函数示例
 template<typename T>
 std::string to_str(const T &v)
@@ -311,7 +311,7 @@ int csqCallback(const EQMSG* pMsg, LPVOID lpUserParam)
 
     EQDATA *pEQData = pMsg->pEQData;
     string slinehead(""), sline("");
-    std::list<stock_info::StockInfo> market_info;
+    std::map<std::string, CsqInfo> market_info;
     if(pEQData->dateArray.nSize != 1) {
       LOG(ERROR) << "error date size";
       return 0;
@@ -332,6 +332,10 @@ static bool UpdateMarketCodes();
 static std::string GetIndicators(); 
 void RegisterCsq(const std::list<std::string> &group_codes); 
 bool GetCsqShot(const std::list<std::string> &group_codes); 
+void UpdateCss();
+void UpdateCssThd();
+std::list<std::string>  GetAcodes();
+std::list<std::string>  GetSingleAcodes(const std::list<std::string> &acodes);
 
 /*
  * 
@@ -420,6 +424,9 @@ int main(int argc, char** argv) {
     emsetcallback(obtainCallback);
     //csq test
     printf("*************csq test*************\n");
+    UpdateCss();
+    std::thread css_thd(UpdateCssThd);
+    css_thd.detach();
     int tick = 0;
     int day = -1;
     bool csq_reg = false;
@@ -429,6 +436,7 @@ int main(int argc, char** argv) {
     auto TimeUpdate = [] (int hour, int min) { return hour >= UPDATE_HOUR && min >= UPDATE_MINUTE;};
     // std::thread update(UpdateNonvariableIndictorThd);
     // update.detach();
+
     while(1) {
       time_t now = time(NULL);
       struct tm current;
@@ -436,6 +444,12 @@ int main(int argc, char** argv) {
       if (current.tm_hour == 0) {
         day_update = false; 
       }
+      // jump weekends and legal holidays 
+      if (!quant_util::DateControl::GetInstance()->IsTradeDay(current)) {
+        sleep(60);
+        continue;
+      } 
+
       if (!csq_conn_state_g || (!day_update && TimeUpdate(current.tm_hour, current.tm_min))|| !csq_reg) {
         if (UpdateMarketCodes()) {
           csq_reg = true;
@@ -452,6 +466,20 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+std::list<std::string> GetSingleAcodes(const std::list<std::string> & acodes) {
+  auto it = acodes.begin();
+  const std::string indexs[] = {"000001.SH", "399001.SZ", "000300.SH", "399006.SZ"};
+  std::set<std::string> index_set(indexs, indexs + sizeof(indexs) / sizeof(std::string));
+  std::list<std::string> tmp;
+  while (it != acodes.end()) {
+    if (index_set.count(*it) == 0) {
+      tmp.push_back(*it);
+    } 
+    it++;
+  }
+  return tmp;
+}
+ 
 std::list<std::string>  GetAcodes() {
   int max_codes = 30000;
   EQDATA* Acodes = NULL;
@@ -484,7 +512,6 @@ std::list<std::string>  GetAcodes() {
 
 bool GetCsqShot(const std::list<std::string> &group_codes) {
     std::string indicators = GetIndicators();
-    LOG(INFO) << indicators;
     auto it = group_codes.begin();
     while (it != group_codes.end()) {
       std::string group_code = *it;
@@ -495,8 +522,9 @@ bool GetCsqShot(const std::list<std::string> &group_codes) {
         return false;
       }
       if (pCtrData) {
-        std::list<stock_info::StockInfo> market_info;
+        std::map<std::string, CsqInfo> market_info;
         GetMarketData(pCtrData, &market_info);
+        LOG(INFO) << "CSQ OK";
         emreleasedata(pCtrData);
         user_recv(market_info);
       }
@@ -523,7 +551,7 @@ void RegisterCsq(const std::list<std::string> &group_codes) {
 
 std::string GetIndicators() {
   const char* indicatorCSQ = 
-        "Time,Now,High,Low,Open,PRECLOSE,Roundlot,Volume,Amount";
+        "Time,Now,High,Low,Open,PRECLOSE,Roundlot,Volume,Amount"; //,Tradestatus";
     char deal_csq [1024];
     const char *deals[] = {"BuyPrice", "BuyVolume", "SellPrice", "SellVolume"};
     std::string indicators(indicatorCSQ);
@@ -550,6 +578,7 @@ bool UpdateMarketCodes() {
     return false;
   }
   
+  quant_util::AcodesControl::GetInstance()->set_acode(GetSingleAcodes(codes)); 
   std::list<std::string> group_codes = GetGroupCodes(codes);
   if (group_codes.empty())
     return false;
@@ -585,11 +614,11 @@ std::list<std::string> GetGroupCodes(std::list<std::string> total) {
   return result;
 }
 
-bool GetMarketData(EQDATA *pData, std::list<stock_info::StockInfo> *market_data) {
+bool GetMarketData(EQDATA *pData, std::map<std::string, CsqInfo> *market_data) {
     EQDATA *pEQData = pData;
     if (!pEQData)
       return false;
-    std::list<stock_info::StockInfo> &market_info = *market_data;
+    std::map<std::string, CsqInfo> &market_info = *market_data;
     if(pEQData->dateArray.nSize != 1)
       return false;
     for(int i=0;i<pEQData->codeArray.nSize;i++) {
@@ -597,21 +626,90 @@ bool GetMarketData(EQDATA *pData, std::list<stock_info::StockInfo> *market_data)
       if (!stock_code) {
         continue;
       }
-      stock_info::StockInfo  info(stock_code); 
+      CsqInfo csq_info;
       for(int j=0;j<pEQData->indicatorArray.nSize;j++) {
         
         EQVARIENT* pEQVarient = (*pEQData)(i,j,0);
         if(pEQVarient) {
-          info.SetIndex(j, eqvalue2string(pEQVarient));
+          csq_info.SetIndex(j, eqvalue2string(pEQVarient));
         } else {
-          info.SetIndex(j, NULL_INDICTOR);
+          csq_info.SetIndex(j, NULL_INDICTOR);
         }
       }
-      market_info.push_back(info);
+      market_info.insert(std::make_pair(stock_code, csq_info));
     }
+    LOG(INFO) << "The size" << market_info.size();
     return true;
 }
 
+void UpdateCss() {
+    std::string indicators = "Tradestatus";
+    std::map<std::string, CssInfo> css_map;
+    std::list<std::string> codes = quant_util::AcodesControl::GetInstance()->acode();
+    if (codes.size() == 0)
+     codes = GetSingleAcodes(GetAcodes());
+    std::list<std::string> group_codes = GetGroupCodes(codes);
+    auto it = group_codes.begin();
+    while (it != group_codes.end()) {
+      std::string group_code = *it;
+      EQDATA* pData = NULL;
+      std::string option = "";
+      EQErr error = emcss(group_code.c_str(), indicators.c_str(), NULL, pData);
+      if(error != EQERR_SUCCESS) {
+        it++;
+        continue;
+      }
+      for(int j=0;j<pData->indicatorArray.nSize;j++) {
+        for(int i=0;i<pData->codeArray.nSize;i++) {
+          for(int k=0;k<pData->dateArray.nSize;k++) {
+            std::string code = pData->codeArray.pChArray[i].pChar;
+            //printf("%s %s: ",pData->indicatorArray.pChArray[j].pChar, pData->codeArray.pChArray[i].pChar);
+            EQVARIENT* pEQVarient = (*pData)(i,j,k);
+            if(pEQVarient) {
+              string s = eqvalue2string(pEQVarient);
+              // printf("%s\n",s.c_str());
+              css_map[code].SetIndex(j, s);
+              // LOG(INFO) << "css " << code << s;
+            }
+          }
+        }
+      }
+      emreleasedata(pData);
+      it++;
+    }
+    stock_info::StockLatestInfo::GetInstance()->UpdateCssInfo(css_map);
+}
 
+
+void UpdateCssThd() {
+  time_t now;
+  struct tm current;
+  int delay = 30;
+  auto NeedCss = [](const struct tm &current) {
+    if (current.tm_hour > 15 
+        || current.tm_hour < 9 
+        || (current.tm_hour == 15 && current.tm_min > 3)
+        || (current.tm_hour == 9 && current.tm_min < 15)
+        || (current.tm_hour == 11 && current.tm_min > 33) 
+        || current.tm_hour == 12) {
+      return false;
+    }
+    return true;
+  };
+
+  while (true) {
+    sleep(120);
+    now = time(NULL);
+    localtime_r(&now, &current);
+    if (!NeedCss(current)) {
+      continue;
+    }
+    if (!quant_util::DateControl::GetInstance()->IsTradeDay(current)) {
+      continue;
+    }
+    UpdateCss();
+  }
+
+}
 
 

@@ -1,51 +1,46 @@
 #include "stock_info.h"
 
 namespace stock_info {
-StockLatestInfo *StockLatestInfo::instance_ = NULL;
 std::mutex StockLatestInfo::mutex_;
 StockLatestInfo* StockLatestInfo::GetInstance() {
-  if (instance_ == NULL) {
-    mutex_.lock();
-    if (instance_ == NULL) {
-      instance_ = new StockLatestInfo();
-    }
-    mutex_.unlock();
-  }
-  return instance_;
+  static StockLatestInfo info;
+  return &info;
 }
 
-bool StockLatestInfo::MergeData(StockInfo *info,
-                                StockInfo *store_info) {
-  std::string value;
-  std::string store_value;
-  bool r = false;
-  for (int i = 0; i < EAST_INDICTORS_NUM; i++) {
-    bool r = info->GetIndex(i, &value);
-    bool store_ok = store_info->GetIndex(i, &store_value);
-    if (!r || !store_ok) {
-      return false;
-    }
-    
-    if (value == NULL_INDICTOR) {
-      info->SetIndex(i, store_value);
+bool StockLatestInfo::UpdateCssInfo(const std::map<std::string, CssInfo> &css_map) {
+  LOG(INFO) << "UpdateCssInfo: " << css_map.size();
+  std::lock_guard<std::mutex> lock_guard(mutex_);
+  auto css_it = css_map.begin();
+  while (css_it != css_map.end()) {
+    auto css_info = css_it->second;
+    std::string code = css_it->first;
+    auto it = stock_map_.find(code);
+    if (it != stock_map_.end()) {
+      StockInfo &info = it->second;
+      info.UpdateCssInfo(css_info);
     } else {
-      store_info->SetIndex(i, value);
-      r = true;
+      StockInfo info(code);
+      info.set_css_info(css_info);
+      stock_map_[code] = info; 
     }
+    css_it++;
   }
   return true;
 }
 
-bool StockLatestInfo::MergeFullInfo(StockInfo *info) {
+bool StockLatestInfo::UpdateCsqInfo(std::string code, const CsqInfo &info, StockInfo *stock_info) {
   std::lock_guard<std::mutex> lock_guard(mutex_);
-  std::string code = info->code();
   auto it = stock_map_.find(code);
   if (it == stock_map_.end()) {
-    stock_map_[code] = *info;
-    return true;
+      StockInfo new_info(code);
+      new_info.set_csq_info(info);
+      stock_map_[code] = new_info; 
+  } else {
+      StockInfo &csq_info = it->second;
+      csq_info.UpdateCsqInfo(info);
   }
-  bool r = MergeData(info, &it->second);
-  return r;
+  *stock_info = stock_map_[code];
+  return true;
 }
 
 } // namespace stock_info

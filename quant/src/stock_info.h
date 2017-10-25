@@ -3,47 +3,21 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <map>
 #include "glog/logging.h"
 #include <set>
-#define EAST_INDICTORS_NUM 49
-#define NULL_INDICTOR  "--"
-
+#include "css_info.h"
+#include "csq_info.h"
+#include "quant_util.h"
 
 namespace stock_info {
-enum StockIndictor {
-  TIME,
-  NOW,
-  HIGH,
-  LOW,
-  OPEN,
-  PRECLOSE,
-  ROUNDLOT,
-  VOLUME,
-  AMOUNT
-};
 
 class StockInfo {
  public:
   StockInfo() : StockInfo("null_code") {
   }
 
-  explicit StockInfo(const std::string &code) : code_(code), indictors_(EAST_INDICTORS_NUM, NULL_INDICTOR) {
-  }
-  
-  bool SetIndex(int i, const std::string &value) {
-    if (i >= 0 && i < indictors_.size()) {
-      indictors_[i] = value;   
-      return true;
-    }
-    return false;
-  }
-
-  bool GetIndex(int i, std::string *value) {
-    if (i >= 0 && i < indictors_.size()) {
-      *value = indictors_[i];
-      return true;
-    }
-    return false;
+  explicit StockInfo(const std::string &code) : code_(code) {
   }
   
   void set_code(const std::string &code) {
@@ -56,49 +30,48 @@ class StockInfo {
 
 
   std::string produce_send_message() const {
-    std::string message;
-    AddIndictor(&message, code_);
-    int i = 0;
-    for (const auto & indictor : indictors_) {
-      AddIndictor(&message, indictor);
-      switch (i) {
-        case static_cast<int>(stock_info::StockIndictor::ROUNDLOT):
-          AddIndictor(&message, NULL_INDICTOR);
-          break;
-        case static_cast<int>(stock_info::StockIndictor::AMOUNT):
-          AddIndictor(&message, NULL_INDICTOR);
-          AddIndictor(&message, NULL_INDICTOR);
-          break;
-        default:
-          break;
-      }
-      i++;
-    }
+    std::string message = code_ + " ";
+    message += csq_info_.produce_send_message();
+    message += css_info_.produce_send_message();
+    std::string date = 
+        quant_util::DateControl::GetInstance()->date();
+    message +=  date;
     return message;
+  }
+  
+  void set_css_info(const CssInfo &info) {
+    css_info_ = info;
+  }
+
+  void set_csq_info(const CsqInfo &info) {
+    csq_info_ = info;
+  }
+
+  void UpdateCssInfo(const CssInfo &info) {
+    css_info_.MergeData(info);
+  } 
+
+  void UpdateCsqInfo(const CsqInfo &info) {
+    csq_info_.MergeData(info);
   }
 
  private:
-  void AddIndictor(std::string *message, const std::string &value) const {
-    (*message) += value;
-    (*message) += " ";
-  }
 
   std::string code_;
   std::vector<std::string> indictors_; 
+  CssInfo css_info_;
+  CsqInfo csq_info_;
 };
 
 class StockLatestInfo {
  public:
   static StockLatestInfo *GetInstance(); 
- 
-  bool UpdateNonvariable(const StockInfo &info);
 
-  bool MergeFullInfo(StockInfo *info); 
+  bool UpdateCssInfo(const std::map<std::string, CssInfo> &info_map);
+
+  bool UpdateCsqInfo(std::string code, const CsqInfo &info, StockInfo *stock_info);
 
  private:
-  bool MergeData(StockInfo *info,
-                 StockInfo *store_info);
-  static StockLatestInfo *instance_;
   std::unordered_map<std::string, StockInfo> stock_map_;
   static std::mutex mutex_;
 };
