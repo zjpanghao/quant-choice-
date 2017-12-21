@@ -4,12 +4,15 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+#include <memory>
 #include "glog/logging.h"
 #include <set>
-#include "css_info.h"
-#include "csq_info.h"
 #include "quant_util.h"
-
+#include "indictor_info.h"
+#include "indictors.h"
+namespace quant {
+class QuantStore;
+}
 namespace stock_info {
 
 class StockInfo {
@@ -17,7 +20,10 @@ class StockInfo {
   StockInfo() : StockInfo("null_code") {
   }
 
-  explicit StockInfo(const std::string &code) : code_(code) {
+  explicit StockInfo(const std::string &code) 
+      : code_(code), 
+        css_info_(code),
+        csq_info_(code) {
   }
   
   void set_code(const std::string &code) {
@@ -31,49 +37,59 @@ class StockInfo {
 
   std::string produce_send_message() const {
     std::string message = code_ + " ";
-    message += csq_info_.produce_send_message();
-    message += css_info_.produce_send_message();
+    auto indic = quant::Indictors::getInstance();
+    message += csq_info_.produce_send_message(indic->getCsqSend());
+    message += css_info_.produce_send_message(indic->getCssState());
     std::string date = 
         quant_util::DateControl::GetInstance()->date();
     message +=  date;
     return message;
   }
   
-  void set_css_info(const CssInfo &info) {
-    css_info_ = info;
+  void set_css_info(IndictorInfoPtr info) {
+    css_info_ = *info;
   }
 
-  void set_csq_info(const CsqInfo &info) {
-    csq_info_ = info;
+  void set_csq_info(IndictorInfoPtr info) {
+    csq_info_ = *info;
   }
 
-  void UpdateCssInfo(const CssInfo &info) {
-    css_info_.MergeData(info);
+  void UpdateCssInfo(IndictorInfoPtr info) {
+    css_info_.MergeData(std::move(info));
   } 
 
-  void UpdateCsqInfo(const CsqInfo &info) {
-    csq_info_.MergeData(info);
+  void UpdateCsqInfo(IndictorInfoPtr info) {
+    csq_info_.MergeData(std::move(info));
   }
 
  private:
 
   std::string code_;
   std::vector<std::string> indictors_; 
-  CssInfo css_info_;
-  CsqInfo csq_info_;
+  IndictorInfo css_info_;
+  IndictorInfo csq_info_;
 };
 
 class StockLatestInfo {
  public:
+  StockLatestInfo();
   static StockLatestInfo *GetInstance(); 
 
-  bool UpdateCssInfo(const std::map<std::string, CssInfo> &info_map);
+  bool UpdateCssInfo(IndictorInfoPtr css_info);
 
-  bool UpdateCsqInfo(std::string code, const CsqInfo &info, StockInfo *stock_info);
+  bool UpdateCsqInfo(IndictorInfoPtr info, StockInfo *stock_info);
+  
+  bool store(const std::string &message); 
+
+  void set_store(quant::QuantStore *store) {
+    store_ = store;
+  }
+  
 
  private:
-  std::unordered_map<std::string, StockInfo> stock_map_;
+  std::unordered_map<std::string, StockInfo > stock_map_;
   static std::mutex mutex_;
+  quant::QuantStore *store_;
 };
 
 }

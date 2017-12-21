@@ -11,26 +11,7 @@
 
 namespace quant_util {
 
-class AcodesControl {
- public:
-  std::list<std::string> acode() {
-    std::lock_guard<std::mutex> guard(lock_);
-    return acode_;
-  }
-  void set_acode(std::list<std::string> acode) {
-    std::lock_guard<std::mutex> guard(lock_);
-    acode_ = acode;
-  }
-
-  static AcodesControl* GetInstance() {
-    static AcodesControl control;
-    return &control;
-  }
-
- private:
-  std::list<std::string> acode_;
-  std::mutex lock_;
-};
+int quantWriteLog(const char *buf); 
 
 class DateControl {
  public:

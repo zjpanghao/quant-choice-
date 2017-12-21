@@ -5,6 +5,12 @@
 #include <streambuf>
 #define STOCK_MARKET_CLOSE_FILE  "trade_date.txt"
 namespace quant_util {
+
+int quantWriteLog(const char *buf) {
+  LOG(INFO) << buf;
+  return 0;
+}
+
 DateControl::DateControl() : day_(0) {
   UpdateDate();
   UpdateTradeDate();

@@ -14,7 +14,7 @@ int user_update(const std::list<stock_info::StockInfo> &messages) {
   }
   return 0;
 }
-
+#if 0
 int user_recv(const std::map<std::string, CsqInfo> &messages) {
   
   int rc = 0;
@@ -25,8 +25,9 @@ int user_recv(const std::map<std::string, CsqInfo> &messages) {
     const std::string &code = it->first;
     std::string origin = csq.produce_send_message();
     LOG(INFO) << pthread_self() << "origin: " << code <<" "<<origin;
+    continue;
     stock_info::StockInfo stock_info;
-    bool r = stock_info::StockLatestInfo::GetInstance()->UpdateCsqInfo(code, csq, &stock_info);
+    bool r = stock_info::StockLatestInfo::GetInstance()->UpdateCsqInfo( csq, &stock_info);
     if (r) {
       message += stock_info.produce_send_message();
       message += "\n";
@@ -43,3 +44,4 @@ int user_recv(const std::map<std::string, CsqInfo> &messages) {
   }
   return 0;
 }
+#endif

@@ -1,22 +1,25 @@
 #include "indictor_info.h"
-std::string IndictorInfo::produce_send_message() const {
+
+std::string IndictorInfo::produce_send_message(
+    const std::vector<std::string> &indictors) const {
   std::string message;
-  // AddIndictor(&message, code_);
-  int i = 0;
-  for (int i = 0; i < indictors_num(); i++) {
-    std::string indictor = GetIndex(i);
+  for (const auto &indic : indictors) {
+    std::string indictor;
+    bool r = getIndic(indic, &indictor);
+    if (!r) 
+      indictor = indic == "TradeState" ? TRADESTATE_DEFAULT_INDICTOR_VALUE 
+          : DEFAULT_INDICTOR_VALUE;
     AddIndictor(&message, indictor);
   }
   return message;
 }
 
-bool IndictorInfo::MergeData(const IndictorInfo &info) {
+bool IndictorInfo::MergeData(IndictorInfoPtr info) {
   bool r = false;
-  for (int i = 0; i < indictors_num_; i++) {
-    std::string store = info.GetIndex(i);
-    if (store != NULL_INDICTOR) {
-      SetIndex(i, store);
-    } 
-  }
-  return true;
+  r = info_.mergeData(info->info_);
+  return r;
+}
+
+IndictorInfo* IndictorFactory::newInfo(const std::string &code) {
+  return new IndictorInfo(code);
 }

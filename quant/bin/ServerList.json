@@ -1,8 +1,8 @@
-﻿{
+{
    "ServerList" : [
       {
          "Host" : "183.136.162.47",
-         "Latency" : 15,
+         "Latency" : 2,
          "Name" : "DLYZ",
          "Net" : 11,
          "NetName" : "南方电信一",
@@ -15,7 +15,7 @@
       },
       {
          "Host" : "183.136.162.33",
-         "Latency" : 10,
+         "Latency" : 17,
          "Name" : "ZBFW",
          "Net" : 11,
          "NetName" : "南方电信一",
@@ -28,12 +28,12 @@
       },
       {
          "Host" : "183.136.163.254",
-         "Latency" : 1083,
+         "Latency" : 147,
          "Name" : "HQBJFW",
          "Net" : 11,
          "NetName" : "南方电信一",
          "Port" : 1818,
-         "Select" : 1,
+         "Select" : 0,
          "SerName" : "行情报价服务",
          "ServiceGroup" : "3",
          "Type" : 3,
@@ -41,7 +41,7 @@
       },
       {
          "Host" : "112.74.142.69",
-         "Latency" : 4177,
+         "Latency" : 171,
          "Name" : "HQBJFW",
          "Net" : 11,
          "NetName" : "南方电信二",
@@ -54,7 +54,7 @@
       },
       {
          "Host" : "121.52.237.244",
-         "Latency" : 4172,
+         "Latency" : 178,
          "Name" : "HQBJFW",
          "Net" : 11,
          "NetName" : "南方网通一",
@@ -67,12 +67,12 @@
       },
       {
          "Host" : "120.55.198.111",
-         "Latency" : 5125,
+         "Latency" : 83,
          "Name" : "HQBJFW",
          "Net" : 11,
          "NetName" : "南方通用一",
          "Port" : 1818,
-         "Select" : 0,
+         "Select" : 1,
          "SerName" : "行情报价服务",
          "ServiceGroup" : "3",
          "Type" : 3,
@@ -80,7 +80,7 @@
       },
       {
          "Host" : "112.74.142.69",
-         "Latency" : 7172,
+         "Latency" : 202,
          "Name" : "HQBJFW",
          "Net" : 11,
          "NetName" : "南方通用二",
@@ -93,7 +93,7 @@
       },
       {
          "Host" : "101.200.96.107",
-         "Latency" : 7171,
+         "Latency" : 186,
          "Name" : "HQBJFW",
          "Net" : 11,
          "NetName" : "北方通用一",
@@ -106,7 +106,7 @@
       },
       {
          "Host" : "42.96.250.240",
-         "Latency" : 9161,
+         "Latency" : 193,
          "Name" : "HQBJFW",
          "Net" : 11,
          "NetName" : "北方通用二",
@@ -119,7 +119,7 @@
       },
       {
          "Host" : "183.136.162.47",
-         "Latency" : 1010,
+         "Latency" : 3,
          "Name" : "XTFW",
          "Net" : 11,
          "NetName" : "南方电信一",
@@ -130,9 +130,9 @@
          "Type" : 4,
          "URL" : ""
       },
-	  {
+      {
          "Host" : "183.136.162.65",
-         "Latency" : 10,
+         "Latency" : 3,
          "Name" : "ZHGL",
          "Net" : 11,
          "NetName" : "南方电信一",
@@ -143,9 +143,9 @@
          "Type" : 5,
          "URL" : ""
       },
-	  {
+      {
          "Host" : "183.131.229.68",
-         "Latency" : 10,
+         "Latency" : 3,
          "Name" : "ZHGL",
          "Net" : 11,
          "NetName" : "南方电信一",
@@ -158,7 +158,7 @@
       },
       {
          "Host" : "180.163.177.36",
-         "Latency" : 10,
+         "Latency" : 6,
          "Name" : "FZKX",
          "Net" : 11,
          "NetName" : "上海通用一",
@@ -171,7 +171,7 @@
       },
       {
          "Host" : "180.163.177.64",
-         "Latency" : 1010,
+         "Latency" : 6,
          "Name" : "FZKX",
          "Net" : 11,
          "NetName" : "上海通用二",
@@ -182,9 +182,9 @@
          "Type" : 6,
          "URL" : ""
       },
-	  {
+      {
          "Host" : "118.178.156.21",
-         "Latency" : 1005,
+         "Latency" : 18,
          "Name" : "TJFW",
          "Net" : 11,
          "NetName" : "线上",
@@ -195,9 +195,9 @@
          "Type" : 7,
          "URL" : ""
       },
-	  {
+      {
          "Host" : "180.163.177.36",
-         "Latency" : 5,
+         "Latency" : 6,
          "Name" : "SHKX",
          "Net" : 11,
          "NetName" : "上海通用一",
@@ -210,7 +210,7 @@
       },
       {
          "Host" : "180.163.177.64",
-         "Latency" : 5,
+         "Latency" : 7,
          "Name" : "SHKX",
          "Net" : 11,
          "NetName" : "上海通用二",
@@ -223,7 +223,7 @@
       },
       {
          "Host" : "118.178.156.21",
-         "Latency" : 5,
+         "Latency" : 7,
          "Name" : "JGQH",
          "Net" : 11,
          "NetName" : "上海通用二",
@@ -234,22 +234,22 @@
          "Type" : 9,
          "URL" : ""
       },
-	  {
+      {
          "Host" : "183.131.229.253",
-         "Latency" : 10,
+         "Latency" : 2,
          "Name" : "XGFW",
          "Net" : 11,
          "NetName" : "南方电信一",
          "Port" : 1818,
-         "Select" : 0,
+         "Select" : 1,
          "SerName" : "选股服务",
          "ServiceGroup" : "10",
          "Type" : 10,
          "URL" : ""
       },
-	  {
+      {
          "Host" : "61.129.248.204",
-         "Latency" : 11,
+         "Latency" : 26,
          "Name" : "QHKX",
          "Net" : 11,
          "NetName" : "南方电信一",
@@ -260,14 +260,14 @@
          "Type" : 11,
          "URL" : ""
       },
-	  {
+      {
          "Host" : "61.129.248.205",
-         "Latency" : 11,
+         "Latency" : 7,
          "Name" : "QHKX",
          "Net" : 11,
          "NetName" : "南方电信一",
          "Port" : 1818,
-         "Select" : 0,
+         "Select" : 1,
          "SerName" : "期货K线服务",
          "ServiceGroup" : "11",
          "Type" : 11,
