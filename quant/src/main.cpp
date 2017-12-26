@@ -59,7 +59,7 @@ volatile bool csq_conn_state_g = false;
 
 //转string函数示例
 template<typename T>
-std::string to_str(const T &v)
+static std::string to_str(const T &v)
 {
     stringstream s;
     s << v;
@@ -67,7 +67,7 @@ std::string to_str(const T &v)
 }
 
 //日志回调函数示例
-int write2Log(const char* log)
+static int write2Log(const char* log)
 {
     LOG(WARNING) << log;
 }
@@ -154,10 +154,7 @@ int main(int argc, char** argv) {
     const int UPDATE_HOUR = 9;
     const int UPDATE_MINUTE = 15;
     auto TimeUpdate = [] (int hour, int min) { return hour >= UPDATE_HOUR && min >= UPDATE_MINUTE;};
-    // std::thread update(UpdateNonvariableIndictorThd);
-    // update.detach();
-    // UpdateMarketCodes(); 
-    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka("192.168.1.74:9092", "east_wealth_test"));
+    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka("192.168.1.74:9092", "east_wealth_test", 2));
     store->init();
     stock_info::StockLatestInfo::GetInstance()->set_store(store.get());
     RedisPool pool("192.168.1.72", 7481, 1, 20, "4", "ky_161019");
@@ -176,18 +173,17 @@ int main(int argc, char** argv) {
       sleep(10);
     }
     quant::SynHandle *css_handle(
-        new quant::CssHandle("Tradestatus"));
+        new quant::CssHandle(indictors->getCssState()));
     css_handle->Update();
     quant::SynHandle *csqshot_handle(
         new quant::CsqshotHandle(indictors->getCsq()));
     csqshot_handle->Update();
-    
-    LOG(INFO) << "fetch codes ok";
-    //SendCsqShot(csq_handle);
+    LOG(INFO) << "csq update ok";
     quant::QuantMon  mon;
     mon.addMon(csq_handle);
     mon.start();
     bool day_update = true;
+    int css_count = 0;
     while(1) {
       struct tm  current;
       time_t now = time(NULL);
@@ -198,7 +194,6 @@ int main(int argc, char** argv) {
 
       if (!day_update && TimeUpdate(current.tm_hour, current.tm_min)) {
         if (codeCnt->updateAcodes()) {
-          // SendCsqShot(csq_handle);
           if(!css_handle->Update()) {
             LOG(ERROR) << "Css update error";
           }
@@ -209,6 +204,13 @@ int main(int argc, char** argv) {
           day_update = true;
         }
       } 
+
+      css_count = (css_count + 1) % 5;
+      if (css_count == 3 && current.tm_hour >= 9 && current.tm_hour <= 15) {
+        if(!css_handle->Update()) {
+          LOG(ERROR) << "Css update error";
+        }
+      }
       sleep(30);
     }
     //退出

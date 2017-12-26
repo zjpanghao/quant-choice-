@@ -12,6 +12,27 @@ class IndictorInfo;
 class IndictorInfos;
 typedef std::shared_ptr<IndictorInfo> IndictorInfoPtr;
 typedef IndictorInfos IndictorInfoPacks; 
+class IndictorDateInfo{
+ public:
+  IndictorDateInfo(const std::string &date) {
+    date_ = date;
+  }
+  void addInfo(IndictorInfoPtr ptr) {
+    indictor_info_.push_back(ptr); 
+  }
+
+  const std::string & getDate() const {
+    return date_;
+  }
+
+  const std::list<IndictorInfoPtr> & getInfos() const  {
+    return indictor_info_;
+  }
+
+ private:
+  std::string date_;
+  std::list<IndictorInfoPtr> indictor_info_;
+};
 
 
 class IndictorInfo {
@@ -66,25 +87,16 @@ enum IndictorType {
 
 class IndictorInfos {
  public:
-  void updateInfo(const std::string &date,
-                  IndictorInfoPtr  ptr) {
-    date_infos_[date] = ptr;
+  void addDateInfo(IndictorDateInfo info) {
+    date_infos_.push_back(info);
   }
 
-  IndictorInfoPtr getInfo(const std::string &date) {
-    auto it = date_infos_.find(date);
-    if (it == date_infos_.end()) {
-      return NULL;
-    }
-    return it->second;
-  } 
-
-  const std::map<std::string, IndictorInfoPtr> &getInfoMap() {
+  const std::list<IndictorDateInfo> &getInfoList() {
     return date_infos_;
   }
  
  private:
-  std::map<std::string, IndictorInfoPtr> date_infos_; 
+  std::list<IndictorDateInfo> date_infos_; 
  
 };
 

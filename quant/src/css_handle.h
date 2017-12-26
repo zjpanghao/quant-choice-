@@ -26,7 +26,6 @@ class CssHandle : public SynHandle{
    std::string codes;
    if (!AcodesControl::GetInstance()->GetSingleCodes(&codes))
      return NULL;
-   codes = "601933.SH";
    int rc = css(codes.c_str(), indictors.c_str(), "", pCtrData);
    if (rc) {
      LOG(ERROR) << "css error" << rc;

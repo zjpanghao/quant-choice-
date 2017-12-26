@@ -84,6 +84,7 @@ bool GetMarketDataPacks(EQDATA *pData, IndictorInfoPacks *market_data) {
     const char* date = pEQData->dateArray.pChArray[k].pChar;
     if (!date)
       continue;
+    IndictorDateInfo  dateInfo(date);
     for(int i=0;i< pEQData->codeArray.nSize;i++) {
       const char *stock_code = pEQData->codeArray.pChArray[i].pChar;
       if (!stock_code) {
@@ -100,8 +101,9 @@ bool GetMarketDataPacks(EQDATA *pData, IndictorInfoPacks *market_data) {
             eqvalue2string(pEQVarient) : NULL_INDICTOR;
         indic_info->setIndic(indic, value);
       }
-      market_data->updateInfo(date, indic_info);
+      dateInfo.addInfo(indic_info);
     }
+    market_data->addDateInfo(dateInfo);
   }
   LOG(INFO) << "The code size" << pEQData->codeArray.nSize;
   LOG(INFO) << "The date size" << pEQData->dateArray.nSize;

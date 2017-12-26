@@ -13,8 +13,8 @@ class QuantTask : public Runnable {
   IndictorInfoPacks *getPack() {
     return &pack_;
   }
-  void Process(IndictorInfoPtr  ptr);
-  virtual void ProcessVirtual(IndictorInfoPtr ptr);
+  void Process(const std::string &date, IndictorInfoPtr  ptr);
+  virtual void ProcessVirtual(const std::string &date, IndictorInfoPtr ptr);
 
  private:
   IndictorInfoPacks pack_;
@@ -24,22 +24,22 @@ class CsqTask : public QuantTask {
  public:
   CsqTask() {
   }
-  virtual void ProcessVirtual(IndictorInfoPtr ptr);
+  virtual void ProcessVirtual(const std::string &date, IndictorInfoPtr ptr);
 };
 
 class CssTask : public QuantTask {
  public:
-  virtual void ProcessVirtual(IndictorInfoPtr ptr);
+  virtual void ProcessVirtual(const std::string &date, IndictorInfoPtr ptr);
 };
 
 class CstTask : public QuantTask {
  public:
-  virtual void ProcessVirtual(IndictorInfoPtr ptr);
+  virtual void ProcessVirtual(const std::string &date, IndictorInfoPtr ptr);
 };
 
 class CscTask : public QuantTask {
  public:
-  virtual void ProcessVirtual(IndictorInfoPtr ptr);
+  virtual void ProcessVirtual(const std::string &date, IndictorInfoPtr ptr);
 };
 
 } // namespace quant

@@ -30,8 +30,9 @@ class CsqshotHandle : public SynHandle{
    if (!pCtrData) {
      return NULL;
    }
+   LOG(INFO) << "csqshot code size" << pCtrData->codeArray.nSize;
    QuantTaskPtr task(new CsqTask());
-   if (GetMarketDataPacks(pCtrData, 
+   if (!GetMarketDataPacks(pCtrData, 
                           task->getPack())) {
      return NULL;
    }

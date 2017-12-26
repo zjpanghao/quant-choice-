@@ -8,7 +8,6 @@ int CsqHandle::reg() {
   std::string option = "Pushtype=";
   option += push_type_;
   int id;
-  LOG(INFO) <<"csqreg" <<  codes_ << " " << indictors_;
   if ((id = csq(codes_.c_str(), indictors_.c_str(), 
     option.c_str(), CsqHandle::csqCallback, this))< 0) {
     return -1;
