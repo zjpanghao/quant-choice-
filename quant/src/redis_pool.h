@@ -10,20 +10,29 @@
 #include <string.h>
 #include <glog/logging.h>
 #include "redis_cmd.h"
+
     class RedisControl {
      public:
       RedisControl(std::string ip, int port, std::string db, std::string password) : idle_(true) {
         struct timeval ta = {2, 0};
-        context_ = (redisContext*)redisConnectWithTimeout(ip.c_str(), port, ta);
-        cmd_.set_context(context_);
-        Auth(password);
-        Select(db);
+        int rc = 0;
+        if ((rc = cmd_.Connect(ip.c_str(), port, ta))!= 0) {
+          LOG(ERROR) << "redis connn error " << rc << " " << ip << port;
+          return;
+        }
+
+        if (!Auth(password)) {
+          LOG(ERROR) << "error passwd" << password;
+          return;
+        }
+
+        if (!Select(db)) {
+          LOG(ERROR) << "error select" << db;
+          return;
+        }
       }
        
       ~RedisControl() {
-        if (context_) {
-          redisFree(context_);
-        }
       }
 
       bool idle() {
@@ -170,5 +179,33 @@
       std::string db_;
       std::string password_;
     };
+
+class RedisControlGuard {
+  public:
+   RedisControlGuard(RedisPool *pool)
+       :
+     redis_pool_(pool),
+     redisControl_(NULL) {
+     
+   }
+
+   std::shared_ptr<RedisControl> GetControl() {
+     if (redis_pool_ == NULL) {
+       return NULL;
+     }
+     redisControl_ = redis_pool_->GetControl();
+     return redisControl_;
+   }
+
+   ~RedisControlGuard() {
+     if (redis_pool_ && redisControl_ != NULL) {
+       redis_pool_->ReturnControl(redisControl_);
+     } 
+   }
+
+  private:
+   std::shared_ptr<RedisControl> redisControl_;
+   RedisPool *redis_pool_;
+};
 
 #endif

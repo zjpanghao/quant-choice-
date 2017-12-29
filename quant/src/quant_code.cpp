@@ -22,8 +22,6 @@ bool AcodesControl::GetSingleCodes(std::string *codes) {
     pool_->ReturnControl(cnt);
     goto REMOTE;
   }
-
-  pool_->ReturnControl(cnt);
       
   if (valid(*codes)) {
     return true;
@@ -50,8 +48,15 @@ bool AcodesControl::updateAcodes() {
   if (valid(codes)) {
     std::shared_ptr<RedisControl> cnt 
       = pool_->GetControl();
-    if (cnt && cnt->SetValue("east_acodes", codes)) {
+    if (cnt == NULL) {
+      LOG(ERROR) << "Get redis control NULL";
+      return false;
+    }
+    if (cnt->SetValue("east_acodes", codes)) {
+      pool_->ReturnControl(cnt);
       return true;      
+    } else {
+      LOG(ERROR) << "set acode failed";
     }
   }
   return false;

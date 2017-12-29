@@ -23,10 +23,12 @@ int CstHandle::reg() {
     current.tm_min = 0;
   }
   char start[64];
-  snprintf(start, sizeof(start), "20170101%02d%02d00", current.tm_hour, current.tm_min);
-  LOG(INFO) << codes_ << start << indictors_;
+  snprintf(start, sizeof(start), "20170101%02d%02d00", startHour_, startMin_);
+  char end[64];
+  snprintf(end, sizeof(end), "20170101%02d%02d00", endHour_, endMin_);
+  LOG(INFO) << codes_ << start << indictors_ << end;
   if ((id = cst(codes_.c_str(), indictors_.c_str(), 
-    start, "20170101150000", NULL, CstHandle::cstCallback, this))< 0) {
+    start, end, NULL, CstHandle::cstCallback, this))< 0) {
     return -1;
   }
   id_ = id;
@@ -55,7 +57,7 @@ int CstHandle::cstCallback(const EQMSG* pMsg, LPVOID lpUserParam) {
     LOG(INFO) << "cst no data";
     return 0;
   }
-  QuantTaskPtr task(new CstTask());
+  QuantTaskPtr task(new CsqTask());
   if (GetMarketDataPacks(pEQData, task->getPack()) == false) {
     return 0;
   }

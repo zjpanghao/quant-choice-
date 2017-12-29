@@ -4,6 +4,7 @@ namespace quant {
 class QuantStore {
  public:
   virtual bool store(const std::string &value) = 0;
+  virtual bool store(const std::string &key, const std::string &value) = 0;
   virtual bool init() = 0;
 };
 

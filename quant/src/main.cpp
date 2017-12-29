@@ -59,7 +59,7 @@ volatile bool csq_conn_state_g = false;
 
 //转string函数示例
 template<typename T>
-std::string to_str(const T &v)
+static std::string to_str(const T &v)
 {
     stringstream s;
     s << v;
@@ -67,7 +67,7 @@ std::string to_str(const T &v)
 }
 
 //日志回调函数示例
-int write2Log(const char* log)
+static int write2Log(const char* log)
 {
     LOG(WARNING) << log;
 }
@@ -157,27 +157,29 @@ int main(int argc, char** argv) {
     // std::thread update(UpdateNonvariableIndictorThd);
     // update.detach();
     // UpdateMarketCodes(); 
-    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka("192.168.1.74:9092", "east_wealth_test"));
+    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka("192.168.1.74:9092", "east_wealth_test", 2));
     store->init();
     stock_info::StockLatestInfo::GetInstance()->set_store(store.get());
-    RedisPool pool("192.168.1.72", 7481, 1, 20, "4", "ky_161019");
+    RedisPool pool("192.168.1.67", 7481, 1, 20, "4", "ky_161019");
     auto indictors = quant::Indictors::getInstance();
     quant::AcodesControl *codeCnt 
         = quant::AcodesControl::GetInstance();
     codeCnt->set_pool(&pool);
     quant::AsynHandle *csq_handle(
         new quant::CsqHandle(indictors->getCsq(), 0));
-    //quant::AsynHandle *cst_handle(
-    //    new quant::CstHandle("TIME, HighLimit, LowLimit"));
-    // cst_handle->Update();
     std::string acodes;
     // makdeshare acodes ok
     while (!codeCnt->updateAcodes()) {
+      LOG(INFO) << "Waiting update acode";
       sleep(10);
     }
     quant::SynHandle *css_handle(
-        new quant::CssHandle("Tradestatus"));
+        new quant::CssHandle(indictors->getCssState()));
     css_handle->Update();
+    quant::AsynHandle *cst_handle(
+        new quant::CstHandle(indictors->getCst()));
+    ((quant::CstHandle*)cst_handle)->setTime(9, 30, 9, 35);
+    //cst_handle->Update();
     quant::SynHandle *csqshot_handle(
         new quant::CsqshotHandle(indictors->getCsq()));
     csqshot_handle->Update();
@@ -188,12 +190,19 @@ int main(int argc, char** argv) {
     mon.addMon(csq_handle);
     mon.start();
     bool day_update = true;
+    int css_count = 0;
     while(1) {
       struct tm  current;
       time_t now = time(NULL);
       localtime_r(&now, &current);
-      if (current.tm_hour == 1) {
+      if (current.tm_hour == 3) {
         day_update = false;
+      }
+      
+      bool trade_day = quant_util::DateControl::GetInstance()->IsTradeDay(current);
+      if (!trade_day) {
+        sleep(3600);
+        continue;
       }
 
       if (!day_update && TimeUpdate(current.tm_hour, current.tm_min)) {
@@ -209,6 +218,13 @@ int main(int argc, char** argv) {
           day_update = true;
         }
       } 
+
+      css_count = (css_count + 1) % 4;
+      if (css_count == 3 && current.tm_hour >= 9 && current.tm_hour <= 15) {
+        if(!css_handle->Update()) {
+          LOG(ERROR) << "Css update error";
+        }
+      }
       sleep(30);
     }
     //退出

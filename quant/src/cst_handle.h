@@ -15,6 +15,10 @@ class CstHandle : public AsynHandle {
   CstHandle(const std::string &indictors) 
     : AsynHandle(indictors) {
   }
+
+  CstHandle(const std::vector<std::string> &indictors) 
+    : AsynHandle(indictors) {
+  }
   
   virtual bool UpdateCodes();
 
@@ -22,8 +26,18 @@ class CstHandle : public AsynHandle {
   
   static int cstCallback(const EQMSG* pMsg, LPVOID lpUserParam); 
 
- private:
+  void setTime(int startHour, int startMin, int endHour, int endMin) {
+    startHour_ = startHour;
+    startMin_ = startMin;
+    endHour_ = endHour;
+    endMin_ = endMin;
+  }
 
+ private:
+  int startHour_;
+  int startMin_;
+  int endHour_;
+  int endMin_;
   int push_type_;
 };
 

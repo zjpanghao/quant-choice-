@@ -81,6 +81,8 @@ class StockLatestInfo {
   
   bool store(const std::string &message); 
 
+  bool store(const std::string &key, const std::string &message); 
+
   void set_store(quant::QuantStore *store) {
     store_ = store;
   }

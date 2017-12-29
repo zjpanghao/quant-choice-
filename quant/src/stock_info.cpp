@@ -5,6 +5,10 @@ std::mutex StockLatestInfo::mutex_;
 bool StockLatestInfo::store(const std::string &message) {
   return store_->store(message);
 }
+
+bool StockLatestInfo::store(const std::string &key, const std::string &message) {
+  return store_->store(key, message);
+}
  
 StockLatestInfo::StockLatestInfo() {
 }

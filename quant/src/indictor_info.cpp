@@ -7,7 +7,7 @@ std::string IndictorInfo::produce_send_message(
     std::string indictor;
     bool r = getIndic(indic, &indictor);
     if (!r) 
-      indictor = indic == "TradeState" ? TRADESTATE_DEFAULT_INDICTOR_VALUE 
+      indictor = indic == "TRADESTATUS" ? TRADESTATE_DEFAULT_INDICTOR_VALUE 
           : DEFAULT_INDICTOR_VALUE;
     AddIndictor(&message, indictor);
   }

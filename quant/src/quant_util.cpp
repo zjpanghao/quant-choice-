@@ -3,11 +3,20 @@
 #include <unistd.h>
 #include <fstream>
 #include <streambuf>
+#include "login.h"
 #define STOCK_MARKET_CLOSE_FILE  "trade_date.txt"
 namespace quant_util {
 
 int quantWriteLog(const char *buf) {
   LOG(INFO) << buf;
+  if (strstr(buf, "not login")) {
+    quant::Login login;
+    if (login.start()) {
+      LOG(ERROR) << "Login error";
+      return -1;
+    }
+    LOG(INFO) << "Login Success.";
+  }
   return 0;
 }
 
