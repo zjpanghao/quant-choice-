@@ -48,9 +48,11 @@
 #include "csqshot_handle.h"
 #include "quant_mon.h"
 #include "quant_code.h"
-#include "redis_pool.h"
+#include "predis/redis_pool.h"
 #include "quant_pack.h"
 #include "quant_kafka.h"
+#include "quant_process.h"
+#include "dbpool.h"
 
 
 using namespace std;
@@ -115,6 +117,17 @@ void glog_init(std::string name) {
   FLAGS_logbufsecs = 0;
 }
 
+static DBPool* InitDbpool(std::string dbserver) {
+	/*init dbpool */
+	DBPool *pool = DBPool::GetInstance();
+	if (pool->PoolInit(dbserver.c_str(), 
+      "stock", "stock","stock", 5, 1, 10) < 0) {
+	  LOG(ERROR) << "error init dbpool" << dbserver;
+	  return NULL;
+	}
+	return pool;
+}
+
 /*
  * 
  */
@@ -122,10 +135,11 @@ void glog_init(std::string name) {
 int main(int argc, char** argv) {
     int rc = 0;
     glog_init(argv[0]);
-#if 0
+    DBPool *db_pool = InitDbpool("192.168.1.88");
+#if 1
     ElectionControl election;
     const char *server = "192.168.1.74:2181";
-    if (election.Init(server, 500) == false) {
+    if (election.Init(server, 5000) == false) {
       printf("Init election failed!\n");
       return -1;
     }
@@ -153,28 +167,41 @@ int main(int argc, char** argv) {
     bool csq_reg = false;
     const int UPDATE_HOUR = 9;
     const int UPDATE_MINUTE = 15;
+    const int DAYLINE_UPDATE_HOUR = 16;
+    const int DAYLINE_UPDATE_MINUTE = 0;
     auto TimeUpdate = [] (int hour, int min) { return hour >= UPDATE_HOUR && min >= UPDATE_MINUTE;};
-    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka("192.168.1.74:9092", "east_wealth_test", 2));
+    auto DayLineTimeUpdate = [] (int hour, int min) { return hour >= DAYLINE_UPDATE_HOUR && min >= DAYLINE_UPDATE_MINUTE;};
+    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka("192.168.1.74:9092", "east_wealth", 2));
     store->init();
     stock_info::StockLatestInfo::GetInstance()->set_store(store.get());
-    RedisPool pool("192.168.1.72", 7481, 1, 20, "4", "ky_161019");
+    RedisPool pool("192.168.1.72", 7481, 4, 20, "4", "ky_161019");
     auto indictors = quant::Indictors::getInstance();
     quant::AcodesControl *codeCnt 
         = quant::AcodesControl::GetInstance();
     codeCnt->set_pool(&pool);
     quant::AsynHandle *csq_handle(
         new quant::CsqHandle(indictors->getCsq(), 0));
-    //quant::AsynHandle *cst_handle(
-    //    new quant::CstHandle("TIME, HighLimit, LowLimit"));
-    // cst_handle->Update();
     std::string acodes;
-    // makdeshare acodes ok
     while (!codeCnt->updateAcodes()) {
       sleep(10);
     }
-    quant::SynHandle *css_handle(
-        new quant::CssHandle(indictors->getCssState()));
+    std::string single_codes;
+    if (!quant::AcodesControl::GetInstance()->GetSingleCodes(&single_codes)) {
+      return -1;
+    }
+
+    if (!quant::AcodesControl::GetInstance()->GetAllCodes(&acodes)) {
+      return -1;
+    }
+
+
+    quant::SynHandle *css_handle = 
+        new quant::CssHandle(indictors->getCssState());
+    css_handle->setCodes(single_codes);
     css_handle->Update();
+    quant::SynHandle *css_dayline_handle = 
+        new quant::CssHandle("CLOSE", new quant::QuantDayLineProcess(db_pool));
+    css_dayline_handle->setCodes(acodes);
     quant::SynHandle *csqshot_handle(
         new quant::CsqshotHandle(indictors->getCsq()));
     csqshot_handle->Update();
@@ -183,17 +210,35 @@ int main(int argc, char** argv) {
     mon.addMon(csq_handle);
     mon.start();
     bool day_update = true;
+    bool dayLineUpdate = false;
     int css_count = 0;
     while(1) {
       struct tm  current;
       time_t now = time(NULL);
       localtime_r(&now, &current);
-      if (current.tm_hour == 1) {
+      if (current.tm_hour == 3) {
         day_update = false;
+        dayLineUpdate = false;
+      }
+
+      bool trade_day = quant_util::DateControl::GetInstance()
+          ->IsTradeDay(current);
+      if (!trade_day) {
+        sleep(3600);
+        continue;
       }
 
       if (!day_update && TimeUpdate(current.tm_hour, current.tm_min)) {
         if (codeCnt->updateAcodes()) {
+          if (!quant::AcodesControl::GetInstance()
+              ->GetAllCodes(&acodes)) {
+            LOG(WARNING) << "acodescontrol get allcodes error";
+          }
+
+          if (!quant::AcodesControl::GetInstance()
+              ->GetSingleCodes(&single_codes)) {
+            LOG(ERROR) << "css fetch single codes error";
+          }
           if(!css_handle->Update()) {
             LOG(ERROR) << "Css update error";
           }
@@ -205,8 +250,17 @@ int main(int argc, char** argv) {
         }
       } 
 
+      if (!dayLineUpdate && 
+           DayLineTimeUpdate(current.tm_hour, current.tm_min)) {
+        css_dayline_handle->setCodes(acodes);
+        LOG(INFO) << "dayline update" << acodes.size();
+        dayLineUpdate = css_dayline_handle->Update();
+      }
+     
       css_count = (css_count + 1) % 5;
-      if (css_count == 3 && current.tm_hour >= 9 && current.tm_hour <= 15) {
+      if (css_count == 3 
+          && current.tm_hour >= 9 
+          && current.tm_hour <= 15) {
         if(!css_handle->Update()) {
           LOG(ERROR) << "Css update error";
         }
@@ -217,24 +271,4 @@ int main(int argc, char** argv) {
     stop();
     return 0;
 }
-
-std::string GetIndictors() {
-  const char* indicatorCSQ = 
-        "Time,Now,High,Low,Open,PRECLOSE,Roundlot,Volume,Amount"; //,Tradestatus";
-    char deal_csq [1024];
-    const char *deals[] = {"BuyPrice", "BuyVolume", "SellPrice", "SellVolume"};
-    std::string indicators(indicatorCSQ);
-#if 0
-    for (int j = 0; j < 4; j++) {
-      char tmp[16];
-      for (int i = 0; i < 5; i ++) {
-        sprintf(tmp, ",%s%d",deals[j], i + 1);
-        indicators.append(tmp); 
-      }
-    }
-#endif
-  return indicators;                            
-}
-
-
 

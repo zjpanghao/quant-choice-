@@ -16,7 +16,7 @@ class CscHandle : public SynHandle{
   CscHandle(const std::string &indictors, 
             const std::string &start,
             const std::string &end) 
-    : SynHandle(indictors) {
+    : SynHandle(indictors, NULL) {
   }
  
  virtual QuantTaskPtr fetchData(const std::string &indictors) {

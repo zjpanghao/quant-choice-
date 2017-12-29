@@ -10,15 +10,24 @@
 #include "syn_handle.h"
 #include "quant_code.h"
 #include "quant_pack.h"
+
 namespace quant {
+class QuantProcess;
 class CssHandle : public SynHandle{
  public:
   CssHandle(const std::string &indictors) 
-    : SynHandle(indictors) {
+    : SynHandle(indictors, NULL) {
+  }
+
+  CssHandle(const std::string &indictors, QuantProcess *process) 
+    : SynHandle(indictors, process) {
   }
 
   CssHandle(const std::vector<std::string> &indictors) 
-    : SynHandle(indictors) {
+    : SynHandle(indictors, NULL) {
+  }
+  CssHandle(const std::vector<std::string> &indictors, QuantProcess *process) 
+    : SynHandle(indictors, process) {
   }
  
  virtual QuantTaskPtr fetchData(const std::string &indictors) {
@@ -26,7 +35,7 @@ class CssHandle : public SynHandle{
    std::string codes;
    if (!AcodesControl::GetInstance()->GetSingleCodes(&codes))
      return NULL;
-   int rc = css(codes.c_str(), indictors.c_str(), "", pCtrData);
+   int rc = css(codes_.c_str(), indictors.c_str(), "", pCtrData);
    if (rc) {
      LOG(ERROR) << "css error" << rc;
      return NULL;

@@ -14,7 +14,7 @@ namespace quant {
 class CsqshotHandle : public SynHandle{
  public:
   CsqshotHandle(const std::vector<std::string> &indictors) 
-    : SynHandle(indictors) {
+    : SynHandle(indictors, NULL) {
   }
  
  virtual QuantTaskPtr fetchData(const std::string &indictors) {

@@ -34,7 +34,7 @@ class IndicInfo {
   }
   
   bool getIndic(const std::string &key,
-                        std::string *value) const {
+                std::string *value) const {
     auto it = indic_map_.find(key);
     if (it == indic_map_.end())
       return false;

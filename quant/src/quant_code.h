@@ -1,6 +1,6 @@
 #ifndef INCLUDE_QUANT_CODE_H
 #define INCLUDE_QUANT_CODE_H
-#include "redis_pool.h"
+#include "predis/redis_pool.h"
 #include <string>
 #include <set>
 #include <algorithm>

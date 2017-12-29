@@ -2,7 +2,11 @@
 #include "stock_info.h"
 namespace quant {
 void QuantTask::Process(const std::string &date, IndictorInfoPtr  indic) {
-  ProcessVirtual(date, indic);
+  if (process_) {
+    process_->process(date, indic.get());
+  } else {
+    ProcessVirtual(date, indic);
+  }
 }
 
 void QuantTask::ProcessVirtual(const std::string &date, IndictorInfoPtr  indic) {
@@ -38,7 +42,7 @@ void CsqTask::ProcessVirtual(const std::string &date, IndictorInfoPtr indic) {
     message = stock_info.produce_send_message();
     message += "\n";
     LOG(INFO) << message;
-    latest->store(message, stock_info.code());
+    latest->store(stock_info.code(), message);
   }
   // LOG(INFO) << message;
 }

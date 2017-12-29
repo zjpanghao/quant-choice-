@@ -3,6 +3,7 @@
 #include <string>
 #include "EmQuantAPI.h"
 #include "quant_util.h"
+#include "login.h"
 namespace quant {
 class Login {
  public:

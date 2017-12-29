@@ -8,6 +8,7 @@ bool SynHandle::Update() {
   QuantTaskPtr task = fetchData(indictors_);
   if (!task)
     return false;
+  task->setProcess(process_);
   service_->Execute(std::move(task));     
   return true;
 }

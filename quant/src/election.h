@@ -18,7 +18,7 @@ class Zookeeper {
      gethostname(host_name,sizeof(host_name));
      if (!handle_)
        return false;
-     int ret = zoo_create(handle_, "/east_market_test", host_name, strlen(host_name),
+     int ret = zoo_create(handle_, "/east_market", host_name, strlen(host_name),
 	     &ZOO_OPEN_ACL_UNSAFE, ZOO_EPHEMERAL, NULL, 0);
      return ret == 0;
    }
