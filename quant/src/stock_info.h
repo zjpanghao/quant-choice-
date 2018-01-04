@@ -53,9 +53,26 @@ class StockInfo {
   void set_csq_info(IndictorInfoPtr info) {
     csq_info_ = *info;
   }
+  
+  bool cssTimeout(time_t now) {
+    return css_change_ && css_last_update_ < now && now - css_last_update_ > 300;
+  }  
+
+  void resetCssTimeout(time_t now) {
+    css_change_ = false;
+    css_last_update_ = now;
+  }
 
   void UpdateCssInfo(IndictorInfoPtr info) {
-    css_info_.MergeData(std::move(info));
+    std::string old_val = "";
+    css_info_.getIndic("TRADESTATUS", &old_val);
+    std::string val = "";
+    css_info_.getIndic("TRADESTATUS", &val);
+    if (old_val != val) {
+      css_info_.MergeData(std::move(info));
+      css_change_ = true;
+      css_last_update_ = time(NULL); 
+    }
   } 
 
   void UpdateCsqInfo(IndictorInfoPtr info) {
@@ -68,6 +85,8 @@ class StockInfo {
   std::vector<std::string> indictors_; 
   IndictorInfo css_info_;
   IndictorInfo csq_info_;
+  bool css_change_{false};
+  time_t css_last_update_{0};
 };
 
 class StockLatestInfo {
@@ -78,6 +97,8 @@ class StockLatestInfo {
   bool UpdateCssInfo(IndictorInfoPtr css_info);
 
   bool UpdateCsqInfo(IndictorInfoPtr info, StockInfo *stock_info);
+
+  bool cssTimeoutSend();
   
   bool store(const std::string &message); 
 

@@ -18,6 +18,24 @@ StockLatestInfo* StockLatestInfo::GetInstance() {
   return &info;
 }
 
+bool StockLatestInfo::cssTimeoutSend() {
+  time_t now = time(NULL);
+  std::lock_guard<std::mutex> lock_guard(mutex_);
+  auto it = stock_map_.begin();
+  while (it != stock_map_.end()) {
+    auto &stock_info = it->second;
+    if (stock_info.cssTimeout(now)) {
+      std::string message = stock_info.produce_send_message();
+      store(stock_info.code(), message);
+      LOG(INFO) << "css send " << stock_info.code() << message;
+      stock_info.resetCssTimeout(now);
+    }
+    it++;
+  }
+
+  return true;
+}
+
 bool StockLatestInfo::UpdateCssInfo(IndictorInfoPtr css_info) {
   std::lock_guard<std::mutex> lock_guard(mutex_);
   std::string code = css_info->code();
@@ -36,14 +54,17 @@ bool StockLatestInfo::UpdateCssInfo(IndictorInfoPtr css_info) {
 bool StockLatestInfo::UpdateCsqInfo(IndictorInfoPtr info, StockInfo *stock_info) {
   std::lock_guard<std::mutex> lock_guard(mutex_);
   std::string code = info->code();
+  time_t now = time(NULL);
   auto it = stock_map_.find(code);
   if (it == stock_map_.end()) {
       StockInfo new_info(code);
       new_info.set_csq_info(std::move(info));
+      new_info.resetCssTimeout(now);
       stock_map_[code] = new_info; 
   } else {
-      StockInfo &csq_info = it->second;
-      csq_info.UpdateCsqInfo(std::move(info));
+      StockInfo &stock_old_info = it->second;
+      stock_old_info.UpdateCsqInfo(std::move(info));
+      stock_old_info.resetCssTimeout(now);
   }
   *stock_info = stock_map_[code];
   return true;

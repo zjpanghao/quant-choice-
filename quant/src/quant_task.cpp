@@ -12,7 +12,7 @@ void QuantTask::Run() {
   auto &info_date = pack_.getInfoList();
   for (auto &indics : info_date) {
     //std::string origin = indic->produce_send_message();
-    //LOG(INFO) << pthread_self() << "origin: " << code <<" "<<origin;
+    //LOG(INFO) << pthread_self() << "origin: " << origin;
     const std::string &date = indics.getDate();
     for (auto &indic : indics.getInfos()) {
       Process(date, indic);
@@ -24,6 +24,10 @@ void QuantTask::Run() {
 void CssTask::ProcessVirtual(const std::string &date, IndictorInfoPtr indic) {
   stock_info::StockLatestInfo::GetInstance()->
       UpdateCssInfo(indic);
+    
+  std::vector<std::string> indics{"TRADESTATUS"};
+  std::string origin = indic->produce_send_message(indics);
+  LOG(INFO) << pthread_self() << "origin: " << origin;
   LOG(INFO) << "css info";
 }
 
@@ -40,7 +44,7 @@ void CsqTask::ProcessVirtual(const std::string &date, IndictorInfoPtr indic) {
     message += "\n";
     latest->store(message, stock_info.code());
   }
-  // LOG(INFO) << message;
+  LOG(INFO) << message;
 }
 
 void CstTask::ProcessVirtual(const std::string &date, IndictorInfoPtr indic) {

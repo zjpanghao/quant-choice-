@@ -48,7 +48,7 @@
 #include "csqshot_handle.h"
 #include "quant_mon.h"
 #include "quant_code.h"
-#include "redis_pool.h"
+#include "predis/redis_pool.h"
 #include "quant_pack.h"
 #include "quant_kafka.h"
 
@@ -104,6 +104,7 @@ void UpdateCss();
 void UpdateCssThd();
 std::list<std::string>  GetAcodes();
 std::list<std::string>  GetSingleAcodes(const std::list<std::string> &acodes);
+void cssTimeoutCheckThd();
 
 void glog_init(std::string name) {
   google::InitGoogleLogging(name.c_str());
@@ -185,10 +186,13 @@ int main(int argc, char** argv) {
     csqshot_handle->Update();
     
     LOG(INFO) << "fetch codes ok";
-    //SendCsqShot(csq_handle);
+    std::thread css_check_thd(cssTimeoutCheckThd);
+    css_check_thd.detach();
+    
     quant::QuantMon  mon;
     mon.addMon(csq_handle);
     mon.start();
+
     bool day_update = true;
     int css_count = 0;
     while(1) {
@@ -220,7 +224,7 @@ int main(int argc, char** argv) {
       } 
 
       css_count = (css_count + 1) % 4;
-      if (css_count == 3 && current.tm_hour >= 9 && current.tm_hour <= 15) {
+      if (css_count == 3 && current.tm_hour >= 9 && current.tm_hour <= 19) {
         if(!css_handle->Update()) {
           LOG(ERROR) << "Css update error";
         }
@@ -250,5 +254,12 @@ std::string GetIndictors() {
   return indicators;                            
 }
 
+
+void cssTimeoutCheckThd() {
+  while (1) {
+    sleep(300);
+    stock_info::StockLatestInfo::GetInstance()->cssTimeoutSend();
+  }
+}
 
 

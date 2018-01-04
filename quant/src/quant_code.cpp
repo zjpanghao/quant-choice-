@@ -2,7 +2,6 @@
 #include <set>
 #include "EmQuantAPI.h"
 #include "glog/logging.h"
-#include "redis_pool.h"
 namespace quant {
   
 bool AcodesControl::GetSingleCodes(std::string *codes) {
