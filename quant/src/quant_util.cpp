@@ -9,14 +9,9 @@ namespace quant_util {
 
 int quantWriteLog(const char *buf) {
   LOG(INFO) << buf;
-  if (strstr(buf, "user does not login")) {
-    quant::Login login;
-    sleep(1);
-    if (login.start()) {
-      LOG(ERROR) << "Login error";
-      return -1;
-    }
-    LOG(INFO) << "Login Success.";
+  if (strstr(buf, "not login")) {
+    quant::Login *login = quant::Login::getInstance();
+    login->setLogin();
   }
   return 0;
 }
