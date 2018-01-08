@@ -139,10 +139,11 @@ int main(int argc, char** argv) {
     // daemon(0, 0);
     //设置SeverList.json文件存放目录
     setserverlistdir("../bin/");
-    quant::Login login;
-    if (login.start()) {
-      LOG(ERROR) << "Login error";
-      return -1;
+    quant::Login *login = quant::Login::getInstance();
+    int loginCount = 0;
+    while (!login->checkStart()) {
+      LOG(ERROR) << "Login error times "<< loginCount++;
+      sleep(10);
     }
     LOG(INFO) << "Login Success.";
     //登陆后设置主回调函数
@@ -195,14 +196,21 @@ int main(int argc, char** argv) {
 
     bool day_update = true;
     int css_count = 0;
+   
     while(1) {
+      if (!login->checkStart()) {
+        LOG(INFO) << "check start failed wait";
+        sleep(10);
+        continue;
+      }
+      
       struct tm  current;
       time_t now = time(NULL);
       localtime_r(&now, &current);
       if (current.tm_hour == 3) {
         day_update = false;
       }
-      
+ 
       bool trade_day = quant_util::DateControl::GetInstance()->IsTradeDay(current);
       if (!trade_day) {
         sleep(3600);
