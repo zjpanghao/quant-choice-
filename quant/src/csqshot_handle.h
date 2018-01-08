@@ -22,6 +22,7 @@ class CsqshotHandle : public SynHandle{
    std::string codes;
    if (!AcodesControl::GetInstance()->GetAllCodes(&codes))
      return NULL;
+   LOG(INFO) << codes.length();
    int rc = csqsnapshot(codes.c_str(), indictors.c_str(), "", pCtrData);
    if (rc) {
      LOG(ERROR) << "csqshot error" << rc;

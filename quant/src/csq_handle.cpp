@@ -9,7 +9,7 @@ int CsqHandle::reg() {
   option += push_type_;
   int id;
   if ((id = csq(codes_.c_str(), indictors_.c_str(), 
-    option.c_str(), CsqHandle::csqCallback, this))< 0) {
+    option.c_str(), CsqHandle::csqCallback, this)) < 0) {
     return -1;
   }
   id_ = id;

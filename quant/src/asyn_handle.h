@@ -48,8 +48,10 @@ class AsynHandle {
   void checkState() {
     if (state_ == QuantHandleState::OFF) {
       LOG(INFO) << id_ << "state off now reg";
-      if (codes_.length() == 0)
+      if (codes_.length() == 0) {
         UpdateCodes();
+      }
+      cancelReg();
       reg();
     } else if (state_ == QuantHandleState::DOWN) {
       if (cancelReg() == 0) {

@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-#define EMQUNANTAPIVER 2010
+#define EMQUNANTAPIVER 2200
 
 #ifdef WIN32
 #ifdef EMQUANTAPI_EXPORTS
@@ -115,6 +115,8 @@ typedef void* LPVOID;
 #define EQERR_OPERATION_FAILURE        (EQERR_BASE_GENERAL + 12)
 //·þÎñ³ö´í							   
 #define EQERR_SERVICE_ERROR            (EQERR_BASE_GENERAL + 13)
+//¿¿¿¿¿¿¿¿¿
+#define EQERR_GETSERVERLIST_FAIL       (EQERR_BASE_GENERAL + 14)
 
 #pragma  endregion                    
 

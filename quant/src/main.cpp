@@ -239,6 +239,7 @@ int main(int argc, char** argv) {
               ->GetSingleCodes(&single_codes)) {
             LOG(ERROR) << "css fetch single codes error";
           }
+          css_handle->setCodes(single_codes);
           if(!css_handle->Update()) {
             LOG(ERROR) << "Css update error";
           }

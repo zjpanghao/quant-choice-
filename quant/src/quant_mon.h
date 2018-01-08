@@ -26,7 +26,7 @@ class QuantMon {
           force_update_ = !handle->Update();
         }
       }
-      sleep(10);
+      sleep(30);
     }
   }
 
