@@ -37,7 +37,7 @@ int CsqHandle::csqCallback(const EQMSG* pMsg, LPVOID lpUserParam) {
   CsqHandle  *handle = static_cast<CsqHandle*>(lpUserParam);
   snprintf(buf, sizeof(buf), "[%02d:%02d:%02d]Received [%d] callback: msgType=%d, err=%d, requestID=%d, serialID=%d.\n", t->tm_hour, t->tm_min, t->tm_sec, times++, pMsg->msgType, pMsg->err, pMsg->requestID, pMsg->serialID);
   LOG(INFO) << buf;
-  if (pMsg->err == 10002004 || pMsg->err == 10002007) {
+  if (pMsg->err != 0 ) {
     LOG(ERROR) << "recv error" << pMsg->err;
     handle->set_state(QuantHandleState::DOWN);
     return -1;

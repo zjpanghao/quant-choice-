@@ -30,8 +30,6 @@
 #include "EmQuantAPI.h"
 #include "glog/logging.h"
 
-#include "user_init.h"
-
 #include <zookeeper/zookeeper.h>
 #include <string.h>
 #include <unistd.h>
