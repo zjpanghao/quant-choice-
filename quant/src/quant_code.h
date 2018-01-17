@@ -14,6 +14,10 @@ class AcodesControl {
   void set_pool(RedisPool *pool) {
     pool_ = pool;
   }
+
+  void setMaxStockNumber(int maxStockNumber) {
+    this->maxStockNumber = maxStockNumber;
+  }
   
   bool GetAllCodes(std::string *codes); 
 
@@ -34,6 +38,7 @@ class AcodesControl {
  
  private:
   std::string  GetAcodes(); 
+  int maxStockNumber{4000};
 
   std::list<std::string> acode_;
   std::mutex lock_;

@@ -67,7 +67,7 @@ std::string AcodesControl::GetAcodes() {
 }
 
 std::set<std::string>  AcodesControl::GetAcodesRemote() {
-  int max_codes = 4000 - 4;
+  int max_codes = maxStockNumber - 4;
   EQDATA* Acodes = NULL;
   time_t now = time(NULL);
   struct tm current;

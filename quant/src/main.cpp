@@ -51,6 +51,7 @@
 #include "quant_kafka.h"
 #include "quant_process.h"
 #include "dbpool.h"
+#include "config/config.h"
 
 
 using namespace std;
@@ -132,16 +133,18 @@ static DBPool* InitDbpool(std::string dbserver) {
 
 int main(int argc, char** argv) {
     int rc = 0;
+    kunyan::Config config("config.ini");
     glog_init(argv[0]);
-    DBPool *db_pool = InitDbpool("192.168.1.88");
+    DBPool *db_pool = InitDbpool(config.get("database", "ip"));
 #if 1
     ElectionControl election;
-    const char *server = "192.168.1.74:2181";
-    if (election.Init(server, 5000) == false) {
+    std::string server = config.get("zookeeper", "server");
+    std::string node = config.get("zookeeper", "node");
+    if (election.Init(server.c_str(), 5000) == false) {
       printf("Init election failed!\n");
       return -1;
     }
-    while (election.Election() == false) {
+    while (election.Election(node) == false) {
       printf("Now election\n");
       sleep(10);
     }
@@ -177,6 +180,8 @@ int main(int argc, char** argv) {
     auto indictors = quant::Indictors::getInstance();
     quant::AcodesControl *codeCnt 
         = quant::AcodesControl::GetInstance();
+    codeCnt->setMaxStockNumber(
+        atoi(config.get("choice", "stockNumber").c_str()));
     codeCnt->set_pool(&pool);
     quant::AsynHandle *csq_handle(
         new quant::CsqHandle(indictors->getCsq(), 0));
