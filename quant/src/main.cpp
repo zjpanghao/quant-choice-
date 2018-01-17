@@ -173,10 +173,19 @@ int main(int argc, char** argv) {
     const int DAYLINE_UPDATE_MINUTE = 0;
     auto TimeUpdate = [] (int hour, int min) { return hour >= UPDATE_HOUR && min >= UPDATE_MINUTE;};
     auto DayLineTimeUpdate = [] (int hour, int min) { return hour >= DAYLINE_UPDATE_HOUR && min >= DAYLINE_UPDATE_MINUTE;};
-    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka("192.168.1.74:9092", "east_wealth", 2));
+    std::string kafkaServer = config.get("kafka", "server");
+    std::string kafkaTopic = config.get("kafka", "topic");
+    std::string kafkaPartition = config.get("kafka", "partition");
+    std::shared_ptr<quant::QuantStore> store(new quant::QuantKafka(kafkaServer, 
+        kafkaTopic, atoi(kafkaPartition.c_str())));
     store->init();
     stock_info::StockLatestInfo::GetInstance()->set_store(store.get());
-    RedisPool pool("192.168.1.72", 7481, 4, 20, "4", "ky_161019");
+    std::string redisIp = config.get("redis-server", "ip");
+    std::string redisDb = config.get("redis-server", "db");
+    std::string redisPort = config.get("redis-server", "port");
+    std::string redisPassword = config.get("redis-server", "password");
+    RedisPool pool(redisIp, atoi(redisPort.c_str()), 4, 20, 
+        redisDb, redisPassword);  
     auto indictors = quant::Indictors::getInstance();
     quant::AcodesControl *codeCnt 
         = quant::AcodesControl::GetInstance();
