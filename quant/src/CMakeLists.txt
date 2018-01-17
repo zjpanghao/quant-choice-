@@ -1,6 +1,6 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../../bin/)
 SET(CMAKE_CXX_COMPILER "g++")
-SET(PRO_DIR "/home/panghao/git/quant-choice/quant-choices")
+SET(PRO_DIR "/opt/choice/quant-choices")
 add_definitions(-std=c++11)
 add_definitions(-DUSER_DELTA=1)
 add_definitions(-g)
@@ -13,7 +13,6 @@ ${KUNLIB}/include/librdkafka
 ${KUNLIB}/include/hiredis 
 ${KUNLIB}/include/zdb 
 ${KUNLIB}/include/zookeeper 
-${KUNLIB}/include/election 
 ${KUNLIB}/include 
 ${KUNLIB}/user)
 link_directories(${PRO_DIR}/quant/bin 

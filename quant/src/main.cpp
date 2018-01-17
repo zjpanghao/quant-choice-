@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <zookeeper/zookeeper_log.h>
-#include "election.h"
+#include "election/election.h"
 #include "stock_info.h"
 #include "login.h"
 #include "csq_handle.h"
