@@ -21,5 +21,5 @@ ${KUNLIB}/libs/zookeeper
 ${KUNLIB}/libs)
 #include_directories(${PRO_DIR}/quant/EmQuantAPI  /home/panghao/include/zookeeper /home/panghao/include /home/panghao/include/hiredis /home/panghao/librdkafka /usr/local/include/librdkafka /usr/local/include/zdb)
 #link_directories(${PRO_DIR}/quant/bin /home/panghao/libs/zookeeper /home/panghao/libs)
-add_executable(quant3_2 quant_process.cpp day_line.cpp cst_handle.cpp kafka_producer.cpp syn_handle.cpp asyn_handle.cpp quant_code.cpp css_handle.cpp csq_handle.cpp quant_pack.cpp quant_task.cpp quant_util.cpp indictor_info.cpp  main.cpp stock_info.cpp)
+add_executable(quant3_2 quant_process.cpp hold.cpp day_line.cpp cst_handle.cpp kafka_producer.cpp syn_handle.cpp asyn_handle.cpp quant_code.cpp ctr_handle.cpp css_handle.cpp csq_handle.cpp quant_pack.cpp quant_task.cpp quant_util.cpp indictor_info.cpp  main.cpp stock_info.cpp)
 target_link_libraries(quant3_2 kunconfig quant hiredis pacsdbpool zookeeper_mt rdkafka glog dl)

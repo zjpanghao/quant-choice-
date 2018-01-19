@@ -56,5 +56,9 @@ void CscTask::ProcessVirtual(const std::string &date, IndictorInfoPtr indic) {
   auto indictors = Indictors::getInstance()->getCsc();
   LOG(INFO) << "csc task" << indic->produce_send_message(indictors);
 }
+void CtrTask::ProcessVirtual(const std::string &date, IndictorInfoPtr indic) {
+  auto indictors = Indictors::getInstance()->getCtr();
+  LOG(INFO) << "ctr task" << indic->produce_send_message(indictors);
+}
   
 }

@@ -52,6 +52,9 @@ class Indictors {
   const std::vector<std::string> &getCsc() {
     return csc_;
   }
+  const std::vector<std::string> &getCtr() {
+    return csc_;
+  }
 
  private:
   Indictors() {
@@ -65,6 +68,7 @@ class Indictors {
   std::vector<std::string> css_his_{"TIME"};
   std::vector<std::string> cst_{"TIME"};
   std::vector<std::string> csc_{"TIME"};
+  std::vector<std::string> ctr_{};
   const std::vector<std::string> csq_send_{"TIME","NOW", "HIGH", "LOW", "OPEN", "PRECLOSE", "ROUNDLOT", "NULL","VOLUME","AMOUNT", "NULL", "NULL", EAST_BUYPRICE5, EAST_NULL5, EAST_BUYVOLUME5, EAST_NULL5, EAST_SELLPRICE5, EAST_NULL5, EAST_SELLVOLUME5, EAST_NULL5};
 
 };

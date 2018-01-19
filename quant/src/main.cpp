@@ -44,6 +44,8 @@
 #include "cst_handle.h"
 #include "csc_handle.h"
 #include "csqshot_handle.h"
+#include "ctr_handle.h"
+
 #include "quant_mon.h"
 #include "quant_code.h"
 #include "predis/redis_pool.h"
@@ -162,7 +164,6 @@ int main(int argc, char** argv) {
     LOG(INFO) << "Login Success.";
     //登陆后设置主回调函数
     setcallback(obtainCallback);
-    
 
     int tick = 0;
     int day = -1;
@@ -215,6 +216,12 @@ int main(int argc, char** argv) {
     quant::SynHandle *css_dayline_handle = 
         new quant::CssHandle("CLOSE", new quant::QuantDayLineProcess(db_pool));
     css_dayline_handle->setCodes(acodes);
+    quant::SynHandle *ctr_handle = 
+        new quant::CtrHandle(indictors->getCtr(), new quant::QuantCtrProcess(db_pool), "HoldIncreaseInfo");
+    ctr_handle->Update();
+    quant::SynHandle *ctr_handle2 = 
+        new quant::CtrHandle(indictors->getCtr(), new quant::QuantCtrProcess(db_pool), "HoldDecreaseInfo");
+    ctr_handle2->Update();
     quant::SynHandle *csqshot_handle(
         new quant::CsqshotHandle(indictors->getCsq()));
     csqshot_handle->Update();

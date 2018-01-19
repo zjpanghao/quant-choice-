@@ -52,5 +52,10 @@ class CscTask : public QuantTask {
   virtual void ProcessVirtual(const std::string &date, IndictorInfoPtr ptr);
 };
 
+class CtrTask : public QuantTask {
+ public:
+  virtual void ProcessVirtual(const std::string &date, IndictorInfoPtr ptr);
+};
+
 } // namespace quant
 #endif

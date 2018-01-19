@@ -1,5 +1,5 @@
 /**************************************************************************************************
-*   EmQuantAPI.h    version  2.0.1.0                                                              *                                                                      *
+*   EmQuantAPI.h    version  2.2.0.0                                                              *                                                                      *
 *   Copyright(c)2016-2017,  EastMoney Information  Co,. Ltd. All Rights Reserved.                 *
 *   Eastmoney API must not be used without authorzation, unauthorized user shall be held liable.  *                                                                  *
 ***************************************************************************************************/
@@ -115,9 +115,8 @@ typedef void* LPVOID;
 #define EQERR_OPERATION_FAILURE        (EQERR_BASE_GENERAL + 12)
 //·şÎñ³ö´í							   
 #define EQERR_SERVICE_ERROR            (EQERR_BASE_GENERAL + 13)
-//¿¿¿¿¿¿¿¿¿
+//»ñÈ¡·şÎñÆ÷ÁĞ±íÊ§°Ü
 #define EQERR_GETSERVERLIST_FAIL       (EQERR_BASE_GENERAL + 14)
-
 #pragma  endregion                    
 
 #pragma region ÍøÂçÏà¹Ø´íÎó           
@@ -187,7 +186,6 @@ typedef void* LPVOID;
 #pragma  endregion
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 //´íÎóĞÅÏ¢ÓïÑÔÀàĞÍÃ¶¾Ù
 typedef enum
 {
@@ -252,50 +250,50 @@ typedef enum
 //charÊı×é·â×°½á¹¹Ìå
 typedef struct _tagEQCHAR
 {
-    char* pChar;                                   //×Ö·ûÊı×éÖ¸Õë
+    char*        pChar;                            //×Ö·ûÖ¸ÕëÊı×é
     unsigned int nSize;                            //×Ö·ûÊı×é³¤¶È£¬(´æ´¢×Ö·û´®Ê±°üÀ¨0½áÎ²³¤¶È£©
 } EQCHAR;
 
 //char¶şÎ¬Êı×é·â×°½á¹¹Ìå
 typedef struct _tagEQCHARARRAY
 {
-    EQCHAR* pChArray;                              //EQCHARÊı×éÖ¸Õë
+    EQCHAR*      pChArray;                         //EQCHARÖ¸ÕëÊı×é
     unsigned int nSize;                            //EQCHARÊı×é³¤¶È
 } EQCHARARRAY;
 
 //EQVARIENTÊı¾İÀàĞÍ·â×°½á¹¹Ìå£¬¿É´æ´¢¶àÖÖÊı¾İÀàĞÍ
 typedef struct _tagEQVARIENT
 {
-    EQVarType vtype;                                //ÖµÀàĞÍ
+    EQVarType          vtype;                      //ÖµÀàĞÍ
     union 
     {
-        char charValue;
-        bool boolValue;
-        short shortValue;
+        char           charValue;
+        bool           boolValue;
+        short          shortValue;
         unsigned short uShortValue;
-        int  intValue;
-        unsigned int uIntValue;
-        int64_t  int64Value;
-        uint64_t uInt64Value;
-        float  floatValue;
-        double doubleValue;
-    } unionValues;                                   //ÁªºÏÌå
-    EQCHAR eqchar;                                   //×Ö·ûÊı×é
+        int            intValue;
+        unsigned int   uIntValue;
+        int64_t        int64Value;
+        uint64_t       uInt64Value;
+        float          floatValue;
+        double         doubleValue;
+    } unionValues;                                 //ÁªºÏÌå
+    EQCHAR eqchar;                                 //×Ö·ûÊı×é
 } EQVARIENT;
 
 //EQVARIENTµÄÊı×é·â×°½á¹¹Ìå
 typedef struct _tagEQVARIENTARRAY
 {
-    EQVARIENT* pEQVarient;                           //EQVARIENTÊı×éÖ¸Õë
-    unsigned int nSize;                              //EQVARIENTÊı×é³¤¶È
+    EQVARIENT*     pEQVarient;                       //EQVARIENTÖ¸ÕëÊı×é
+    unsigned int   nSize;                            //EQVARIENTÊı×é³¤¶È
 } EQVARIENTARRAY;
 
 //EQDATAÊı¾İ·µ»Ø½á¹¹Ìå
 typedef struct _tagEQDATA
 {
-    EQCHARARRAY codeArray;                           //¹ÉÆ±´úÂëÊı×é
-    EQCHARARRAY indicatorArray;                      //Ö¸±êÊı×é
-    EQCHARARRAY dateArray;                           //ÈÕÆÚÊı×é
+    EQCHARARRAY    codeArray;                        //¹ÉÆ±´úÂëÊı×é
+    EQCHARARRAY    indicatorArray;                   //Ö¸±êÊı×é
+    EQCHARARRAY    dateArray;                        //ÈÕÆÚÊı×é
     EQVARIENTARRAY valueArray;                       //ÖµÊı×é
 
     //operator ()(int,int,int)
@@ -336,12 +334,12 @@ typedef struct _tagEQDATA
 //EQMSGÊı¾İ½á¹¹Ìå(Òì²½·µ»Ø»Øµ÷Ê±Ê¹ÓÃ)
 typedef struct _tagEQMSG
 {
-    int version;							         //°æ±¾ºÅ
-    EQMsgType msgType;                               //MsgÀàĞÍ
-    EQErr err;							             //´íÎóÂë
-    EQID requestID;						             //ÇëÇóID
-    EQID serialID;						             //Á÷Ë®ºÅ
-    EQDATA* pEQData;      		                     //°üº¬µÄÊı¾İ
+    int            version;						     //°æ±¾ºÅ
+    EQMsgType      msgType;                          //MsgÀàĞÍ
+    EQErr          err;							     //´íÎóÂë
+    EQID           requestID;					     //ÇëÇóID
+    EQID           serialID;					     //Á÷Ë®ºÅ
+    EQDATA*        pEQData;      		             //°üº¬µÄÊı¾İ
 } EQMSG, *PEQMSG;
 
 //±¨±íÊä³ö½á¹¹Ìå
@@ -398,31 +396,31 @@ typedef struct _tagEQLOGININFO
 //ÏÂµ¥ĞÅÏ¢
 typedef struct _tagORDERINFO
 {
-	char         code[16];                           //Ö¤È¯´úÂë
-	double       volume;                             //½»Ò×ÊıÁ¿
-	float        price;                              //½»Ò×¼Û¸ñ
-	int          date;                               //½»Ò×ÈÕÆÚ yyyymmdd  8Î»Êı
-	int          time;                               //½»Ò×Ê±¼ä hhmmss    6Î»Êı
-	OperateType  optype;                             //²Ù×÷ÀàĞÍ
-	float        cost;                               //·ÑÓÃ
-	float        rate;                               //·ÑÂÊ
-	int          reserve;                            //±£Áô×Ö¶Î
+	char           code[16];                         //Ö¤È¯´úÂë
+	double         volume;                           //½»Ò×ÊıÁ¿
+	float          price;                            //½»Ò×¼Û¸ñ
+	int            date;                             //½»Ò×ÈÕÆÚ yyyymmdd  8Î»Êı
+	int            time;                             //½»Ò×Ê±¼ä hhmmss    6Î»Êı
+	OperateType    optype;                           //²Ù×÷ÀàĞÍ
+	float          cost;                             //·ÑÓÃ
+	float          rate;                             //·ÑÂÊ
+	int            reserve;                          //±£Áô×Ö¶Î
 } ORDERINFO, *PORDERINFO;
 
 #pragma pack(pop)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//ÈÕÖ¾»Øµ÷º¯Êı
-typedef int (*logcallback)(const char* log);
+//ÈÕÖ¾»Øµ÷º¯Êı(±¾½Ó¿ÚÖĞµÄÈÕÖ¾Í¨¹ı´Ë»Øµ÷º¯ÊıÊä³ö)
+typedef int (*logcallback)(const char* pLog);
 
 //ÇëÇó»Øµ÷º¯Êı(Òì²½ÇëÇóÊ±Ê¹ÓÃ)
 typedef int (*datacallback) (const EQMSG* pMsg, LPVOID lpUserParam);
 
-//ÉèÖÃÖ÷»Øµ÷º¯Êı(Ò»¶¨ÒªÉèÖÃÒ»¸öÖ÷»Øµ÷º¯Êı£¬·ñÔòÊÕ²»µ½ÕËºÅµôÏßÍ¨Öª)
+//ÉèÖÃÖ÷»Øµ÷º¯Êı(Ò»¶¨ÒªÉèÖÃÒ»¸öÖ÷»Øµ÷º¯Êı£¬¿ÉÔÚµ÷ÓÃstartÖ®Ç°µ÷ÓÃ£¬·ñÔòÊÕ²»µ½ÕËºÅµôÏßÍ¨Öª)
 EMQUANTAPI EQErr setcallback(datacallback pfnCallback);
 
-//ÓÃ»§¿ÉÒÔ×Ô¶¨ÒåServerList.jsonÎÄ¼şµÄ´æ·ÅÂ·¾¶
+//ÓÃ»§¿ÉÒÔ×Ô¶¨Òå"ServerList.json"ºÍ"userInfo"ÎÄ¼şµÄ´æ·ÅÄ¿Â¼(Èç¹û²»µ÷ÓÃ´Ëº¯Êı»òÕßdir´«¿ÕÔòÄ¬ÈÏµ±Ç°Ä¿Â¼)
 EMQUANTAPI void setserverlistdir(const char* dir);
 
 //»ñÈ¡´íÎóÂëÎÄ±¾ËµÃ÷
@@ -431,26 +429,27 @@ EMQUANTAPI const char* geterrstring(EQErr errcode, EQLang lang=eLang_en);
 //ÉèÖÃÍøÂç´úÀí ×¢£ºÈçĞèÊ¹ÓÃ´úÀí£¬ĞèÒªÔÚµ÷ÓÃËùÓĞ½Ó¿ÚÖ®Ç°ÉèÖÃ
 EMQUANTAPI EQErr setproxy(ProxyType type, const char* proxyip, unsigned short proxyport, bool verify, const char* proxyuser, const char* proxypwd);
 
-/**ÈË¹¤¼¤»î 
-*  pLoginInfo£ºÕË»§ÃûÃÜÂë½á¹¹ÌåÖ¸Õë£¨±Ø´«Ïî£© options: ¿É´« "email=who@what.com"  pfnCallbackÈÕÖ¾»Øµ÷º¯Êı
-*  ×¢£ºÈË¹¤¼¤»îÊÊÓÃÓÚÎŞ½çÃæÔËĞĞ»·¾³£¨ÈçÔ¶³Ìlinux£©»òÎŞ·¨ÔËĞĞLoginActivator³ÌĞòµÄÇé¿ö£¬
-*      ¼¤»î³É¹¦ºó½«»ñµÃµÄ¼¤»îÎÄ¼ş"userInfo"·Åµ½"ServerList.json"Í¬¼¶Ä¿Â¼£¬ÔÙµ÷ÓÃstartµÇÂ¼*/  
+/**ÈË¹¤¼¤»î ÊÊÓÃÓÚÎŞ½çÃæÔËĞĞ»·¾³£¨ÈçÔ¶³Ìlinux£©»òÎŞ·¨ÔËĞĞLoginActivator³ÌĞòµÄÇé¿ö£¬¼¤»î³É¹¦ºó½«»ñµÃµÄ¼¤»îÎÄ¼ş"userInfo"·Åµ½"ServerList.json"Í¬¼¶Ä¿Â¼£¬ÔÙµ÷ÓÃstartµÇÂ¼
+*  ²ÎÊıËµÃ÷£º
+*  pLoginInfo£ºÕË»§ÃûÃÜÂë½á¹¹ÌåÖ¸Õë£¨±Ø´«Ïî£©   options:¿É´«ÓÊÏä,ÈË¹¤¼¤»îºó»á½«ÁîÅÆÎÄ¼ş"userInfo"·¢ËÍÖÁÄú´«ÈëµÄÓÊÏä ÀıÈç£º"email=who@what.com"  
+*  pfnCallback£ºÈÕÖ¾»Øµ÷º¯Êı */
 EMQUANTAPI EQErr manualactivate(EQLOGININFO* pLoginInfo, const char* options, logcallback pfnCallback);
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//³õÊ¼»¯ºÍµÇÂ¼(¿ªÊ¼Ê±»òµôÏßºóµ÷ÓÃ)  pLoginInfo£º±£Áô²ÎÊı,ÎŞĞè´«(2.0.0.0°æ±¾Ö®ºó¸ÄÎªÁîÅÆ×Ô¶¯µÇÂ½)  options£º¸½¼Ó²ÎÊı  pfnCallbackÈÕÖ¾»Øµ÷º¯Êı
+/**µÇÂ¼(¿ªÊ¼Ê±»òµôÏßºóµ÷ÓÃ) 
+*  ²ÎÊıËµÃ÷£º
+*  pLoginInfo£º±£Áô²ÎÊı,ÎŞĞè´«(2.0.0.0°æ±¾Ö®ºó¸ÄÎªÁîÅÆ×Ô¶¯µÇÂ½,±£Áô´Ë²ÎÊıÒÔ¼æÈİ¾É°æ±¾)  
+*  options£º¸½¼Ó²ÎÊı,ÓÃ°ë½Ç¶ººÅ¸ô¿ª   ÏÖ¿ª·Å TestLatency=1£¨·şÎñÆ÷²âËÙ,Ä¬ÈÏÎª0²»²âËÙ£© 
+*           ForceLogin=1 £¨Ç¿ÖÆµÇÂ¼£¬Ä¬ÈÏÎª0ÆÕÍ¨µÇÂ¼£© LogLevel=2(ÈÕÖ¾¼¶±ğ 1:Debug 2:Info 3:Error)
+*  pfnCallback£ºÈÕÖ¾»Øµ÷º¯Êı*/
 EMQUANTAPI EQErr start(EQLOGININFO* pLoginInfo, const char* options, logcallback pfnCallback);
 //ÍË³ö(½áÊøÍË³öÊ±µ÷ÓÃ£¬Ö»Ğèµ÷ÓÃÒ»´Î)
 EMQUANTAPI EQErr stop();
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //²ÎÊıËµÃ÷:
 //    codes: ¶«²Æ´úÂë  ¶à¸ö´úÂë¼äÓÃ°ë½Ç¶ººÅ¸ô¿ª£¬Ö§³Ö´óĞ¡Ğ´¡£Èç "300059.SZ,000002.SZ,000003.SZ,000004.SZ"
 //    indicators: ¶«²ÆÖ¸±ê ¶à¸öÖ¸±ê¼äÓÃ°ë½Ç¶ººÅ¸ô¿ª£¬Ö§³Ö´óĞ¡Ğ´¡£Èç "open,close,high"
 //    startdateºÍenddate: ¿ªÊ¼ÈÕÆÚºÍ½ØÖ¹ÈÕÆÚ¡£ÈçÎŞ·Ö¸ô·û£¬Ôò±ØĞëÎª8Î»Êı×Ö¡£¸ñÊ½Ö§³Ö:YYYYMMDD YYYY/MM/DD YYYY/M/D YYYY-MM-DD YYYY-M-D
 //    options: ¸½¼Ó²ÎÊı  ¶à¸ö²ÎÊıÒÔ°ë½Ç¶ººÅ¸ô¿ª£¬"Period=1,Market=CNSESH,Order=1,Adjustflag=1,Curtype=1,Pricetype=1,Type=1"
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Ö¸±ê·şÎñÊı¾İ²éÑ¯(Í¬²½ÇëÇó)
@@ -474,23 +473,24 @@ EMQUANTAPI EQErr csqsnapshot(const char* codes, const char* indicators, const ch
 //»ñÈ¡×¨Ìâ±¨±í(Í¬²½ÇëÇó)
 EMQUANTAPI EQErr ctr(const char* ctrName, const char* indicators, const char* options, EQCTRDATA*& pEQCtrData);
 
-//Ìõ¼şÑ¡¹É(Í¬²½ÇëÇó)
-//cps²ÎÊıËµÃ÷£º
-//cpsCodes:      Ö¤È¯´úÂë·¶Î§,±Ø´«,Ö§³ÖÁ½ÖÖÄ£Ê½ 1.°å¿é´úÂë ÒÔ B_ ¿ªÍ·£¬Èç "B_001004"; 2. ¶«²Æ´úÂë£¬¶à¸ö´úÂë¼äÓÃ°ë½Ç¶ººÅ¸ô¿ª£¬Èç"000001.SZ,000002.SZ,600000.SH"
-//cpsIndicators: ±í´ïÊ½²ÎÊı,±í´ïÊ½Ö®Ç°ÓÃÓ¢ÎÄ·ÖºÅ¸ô¿ª,ÄÚ²¿¸÷²ÎÊıÓÃ°ë½Ç¶ººÅ¸ô¿ª Èç   s1,open,2016/12/13,1;s2,close,2017-02-25,1;s3,listdate
-//cpsConditions: Ìõ¼ş±í´ïÊ½
-//cpsOptions:    ÆäËû¸½¼ÓÌõ¼ş,ÈçÅÅĞò,È¡Ç°NÌõÑ¡¹É½á¹ûµÈ
-//pEQData:       Ñ¡¹É½á¹û
+/*Ìõ¼şÑ¡¹É(Í¬²½ÇëÇó)
+* ²ÎÊıËµÃ÷£º
+* cpsCodes:      Ö¤È¯´úÂë·¶Î§,±Ø´«,Ö§³ÖÁ½ÖÖÄ£Ê½ 1.°å¿é´úÂë ÒÔ B_ ¿ªÍ·£¬Èç "B_001004"; 2. ¶«²Æ´úÂë£¬¶à¸ö´úÂë¼äÓÃ°ë½Ç¶ººÅ¸ô¿ª£¬Èç"000001.SZ,000002.SZ,600000.SH"
+* cpsIndicators: ±í´ïÊ½²ÎÊı,±í´ïÊ½Ö®Ç°ÓÃÓ¢ÎÄ·ÖºÅ¸ô¿ª,ÄÚ²¿¸÷²ÎÊıÓÃ°ë½Ç¶ººÅ¸ô¿ª Èç   s1,open,2016/12/13,1;s2,close,2017-02-25,1;s3,listdate
+* cpsConditions: Ìõ¼ş±í´ïÊ½
+* cpsOptions:    ÆäËû¸½¼ÓÌõ¼ş,ÈçÅÅĞò,È¡Ç°NÌõÑ¡¹É½á¹ûµÈ
+* pEQData:       Ñ¡¹É½á¹û*/
 EMQUANTAPI EQErr cps(const char* cpsCodes, const char* cpsIndicators, const char* cpsConditions, const char* cpsOptions, EQDATA*& pEQData);
-
 //×éºÏÕË»§¹ØÏµ²éÑ¯(Í¬²½ÇëÇó)
 EMQUANTAPI EQErr pquery(const char* options, EQDATA*& pEQData);
-
 //ÅúÁ¿ÏÂµ¥(Í¬²½ÇëÇó)
 EMQUANTAPI EQErr porder(ORDERINFO* pOrderInfo, int orderInfoSize, const char* accountId, const char* remark, const char* options);
-
 //½ö¹©¾²Ì¬Êı¾İÍ¬²½½Ó¿Ú·µ»ØÊı¾İÖ¸ÕëÊÍ·ÅÄÚ´æ
 EMQUANTAPI EQErr releasedata(void* pEQData);
+//ºê¹ÛÖ¸±ê·şÎñ(Í¬²½ÇëÇó)
+EMQUANTAPI EQErr edb(const char* edbids, const char* options, EQDATA*& pEQData);
+//ºê¹ÛÖ¸±êidÏêÇé²éÑ¯(Í¬²½ÇëÇó)
+EMQUANTAPI EQErr edbquery(const char* edbids, const char* indicators, const char* options, EQDATA*& pEQData);
 
 //¡ü¡ü¡ü¡ü¡ü¡ü¡üÒÔÉÏÎªÍ¬²½º¯Êı¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü
 //¡ı¡ı¡ı¡ı¡ı¡ı¡ıÒÔÏÂÎªÒì²½º¯Êı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı
@@ -502,7 +502,6 @@ EMQUANTAPI EQErr releasedata(void* pEQData);
 EMQUANTAPI EQID csq(const char* codes, const char* indicators, const char* options, datacallback pfnCallback, LPVOID lpUserParam);
 //È¡ÏûÊµÊ±ĞĞÇé¶©ÔÄ   serialIDÎª0Ê± È¡ÏûËùÓĞ¶©ÔÄ
 EMQUANTAPI EQErr csqcancel(EQID serialID);
-
 //ÈÕÄÚÌø¼Û·şÎñ(Òì²½)  startdatetimeºÍenddatetime¸ñÊ½(YYYYMMDDHHMMSS»òHHMMSS±íÊ¾ÏµÍ³ÈÕÆÚµ±ÌìµÄÊ±¼ä£¬Á½ÕßĞèÊ¹ÓÃÍ¬Ò»ÖÖ¸ñÊ½)
 EMQUANTAPI EQID cst(const char* codes, const char* indicators, const char* startdatetime, const char* enddatetime, const char* options, datacallback pfnCallback, LPVOID lpUserParam);
 

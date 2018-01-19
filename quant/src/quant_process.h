@@ -21,5 +21,16 @@ class QuantDayLineProcess : public QuantProcess {
   DBPool *pool_;
 };
 
+class QuantCtrProcess : public QuantProcess {
+ public:
+  QuantCtrProcess(DBPool *pool) : pool_(pool) {
+  }
+
+  virtual bool process(const std::string &date, 
+                       IndictorInfo *indictorInfo); 
+ private:
+  DBPool *pool_;
+};
+
 }
 #endif

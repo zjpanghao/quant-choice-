@@ -6,6 +6,7 @@ namespace quant {
 std::string eqvalue2string(const EQVARIENT* pEQVarient) {
   if(!pEQVarient)
   {
+    LOG(INFO) << "NULL";
     return "--";
   }
 
@@ -17,6 +18,7 @@ std::string eqvalue2string(const EQVARIENT* pEQVarient) {
     //以下为了输出便于观察，做了字符宽度限定处理，实际可参考需求处理
     case eVT_null:
       snprintf(z, sizeof(z), "%s", "--");
+      LOG(INFO) << "TYPE NULL";
       s = z;
       break;
     case eVT_char:
@@ -111,4 +113,30 @@ bool GetMarketDataPacks(EQDATA *pData, IndictorInfoPacks *market_data) {
   return true;
 }
 
+bool GetCtrMarketDataPacks(EQCTRDATA *pData, 
+                           IndictorInfoPacks *market_data) {
+  EQCTRDATA *pEQData = pData;
+  if (!pEQData)
+    return false;
+  int ndate = 1;
+  std::string date = "--";
+  IndictorDateInfo  dateInfo(date);
+  for(int i=0; i< pEQData->row;i++) {
+    IndictorInfoPtr indic_info(IndictorFactory::newInfo("--"));
+    for(int j=0; j < pEQData->column; j++) {
+      const char* indic = 
+        pEQData->indicatorArray.pChArray[j].pChar;
+      if (!indic)
+        continue;
+      EQVARIENT* pEQVarient = (*pEQData)(i, j);
+      const std::string value = pEQVarient ?
+        eqvalue2string(pEQVarient) : NULL_INDICTOR;
+      indic_info->setIndic(indic, value);
+    }
+    dateInfo.addInfo(indic_info);
+  }
+  market_data->addDateInfo(dateInfo);
+  return true;
 }
+
+} // namespace

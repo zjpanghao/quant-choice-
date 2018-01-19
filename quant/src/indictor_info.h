@@ -94,10 +94,9 @@ class IndictorInfos {
   const std::list<IndictorDateInfo> &getInfoList() {
     return date_infos_;
   }
- 
+
  private:
   std::list<IndictorDateInfo> date_infos_; 
- 
 };
 
 class IndictorFactory {
